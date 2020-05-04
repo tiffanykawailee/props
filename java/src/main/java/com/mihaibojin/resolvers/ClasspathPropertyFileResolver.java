@@ -3,7 +3,6 @@ package com.mihaibojin.resolvers;
 import static java.util.Objects.isNull;
 
 import com.mihaibojin.Utils;
-import com.mihaibojin.contract.Resolver;
 import com.mihaibojin.logger.LoggerBridge;
 import com.mihaibojin.logger.LoggerInterface;
 import java.io.IOException;

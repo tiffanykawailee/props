@@ -1,5 +1,6 @@
 package com.mihaibojin;
 
+import com.mihaibojin.prop.PropRegistry;
 import com.mihaibojin.resolvers.EnvResolver;
 import com.mihaibojin.resolvers.PropertyFileResolver;
 import com.mihaibojin.resolvers.SystemPropertyResolver;

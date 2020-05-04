@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.SortedMap;
+import java.util.regex.Pattern;
 
 public class Utils {
   private static final LoggerInterface log = LoggerBridge.getLogger();
@@ -58,12 +59,13 @@ public class Utils {
     return Optional.ofNullable(store.get(key));
   }
 
-  public static Optional<List<String>> getStringList(Map<String, String> store, String key) {
-    return Optional.ofNullable(store.get(key)).map(Utils::splitString);
+  public static Optional<List<String>> getStringList(
+      Map<String, String> store, String key, String separator) {
+    return Optional.ofNullable(store.get(key)).map(value -> splitString(value, separator));
   }
 
-  private static List<String> splitString(String input) {
-    return List.of(input.split("[,]+"));
+  private static List<String> splitString(String input, String separator) {
+    return List.of(input.split(Pattern.quote(separator)));
   }
 
   public static Map<String, String> loadPropertiesFromStream(InputStream stream)

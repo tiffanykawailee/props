@@ -1,7 +1,6 @@
 package com.mihaibojin.resolvers;
 
 import com.mihaibojin.Utils;
-import com.mihaibojin.contract.Resolver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
