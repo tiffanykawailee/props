@@ -1,13 +1,17 @@
 package com.mihaibojin.resolvers;
 
-import com.mihaibojin.Utils;
 import com.mihaibojin.contract.Resolver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class SystemPropertyResolver implements Resolver {
+/** Useful for tests, when the implementation requires overriding values. */
+public class InMemoryResolver implements Resolver {
   private final Map<String, String> store = new HashMap<>();
+
+  public void set(String key, String value) {
+    store.put(key, value);
+  }
 
   @Override
   public Optional<String> get(String key) {
@@ -16,13 +20,11 @@ public class SystemPropertyResolver implements Resolver {
 
   @Override
   public boolean shouldAutoUpdate() {
-    // System properties do not need to be read more than once
     return false;
   }
 
-  /** You can call this method manually, after updating the System properties object (if needed) */
   @Override
   public void refresh() {
-    Utils.mergeMapsInPlace(store, Utils.readPropertiesToMap(System.getProperties()));
+    // do nothing
   }
 }
