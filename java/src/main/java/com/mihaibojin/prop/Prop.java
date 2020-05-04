@@ -5,12 +5,14 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.mihaibojin.resolvers.Resolver;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 
 public abstract class Prop<T> {
-  private final String key;
-  private final Class<T> type;
+  public final String key;
+  public final Class<T> type;
   private final T defaultValue;
   private final String description;
   private final boolean isRequired;
@@ -18,6 +20,7 @@ public abstract class Prop<T> {
   protected PropRegistry registry;
   protected String resolverId;
 
+  private Map<String, T> layers;
   private T currentValue;
 
   public Prop(
@@ -58,11 +61,11 @@ public abstract class Prop<T> {
   }
 
   /**
-   * @return {@link String} representing a specific {@link Resolver} or an empty {@link Optional}
-   *     when all registered resolvers should be queried.
+   * @return {@link String} representing a specific {@link Resolver} or null when all registered
+   *     resolvers should be queried.
    */
-  protected Optional<String> resolverId() {
-    return Optional.ofNullable(resolverId);
+  protected String resolverId() {
+    return resolverId;
   }
 
   /**
@@ -83,18 +86,42 @@ public abstract class Prop<T> {
    * @return true if the property was updated, or false if it kepts its value
    */
   public final boolean update() {
-    synchronized (this) {
-      String value = resolverId().map(id -> registry().get(key, id)).orElse(registry().get(key));
-      T resolved = resolveValue(value);
-      validate(resolved);
-
-      if (Objects.equals(currentValue, resolved)) {
-        return false;
-      }
-
-      currentValue = resolved;
+    // read all the values from the registry
+    Map<String, String> values;
+    String resolverId = resolverId();
+    if (isNull(resolverId)) {
+      values = registry().get(key);
+    } else {
+      values = registry().get(key, resolverId);
     }
 
+    // process all layers and transform them into the final type
+    Map<String, T> layers = new LinkedHashMap<>();
+    for (Entry<String, String> entry : values.entrySet()) {
+      T resolved = resolveValue(entry.getValue());
+      validate(resolved);
+      layers.put(entry.getKey(), resolved);
+    }
+
+    // store all the layers
+    synchronized (this) {
+      this.layers = layers;
+    }
+
+    // read the top-most value (highest priority)
+    T currentValue = null;
+    for (Entry<String, T> entry : layers.entrySet()) {
+      currentValue = entry.getValue();
+      break;
+    }
+
+    // determine if the actual value has changed, return otherwise
+    if (Objects.equals(this.currentValue, currentValue)) {
+      return false;
+    }
+
+    // update the current value, if necessary
+    this.currentValue = currentValue;
     return true;
   }
 
@@ -124,5 +151,27 @@ public abstract class Prop<T> {
   @Override
   public String toString() {
     return format("Prop{%s=(%s)%s}", key, type.getSimpleName(), currentValue);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Prop)) {
+      return false;
+    }
+    Prop<?> prop = (Prop<?>) o;
+    return isRequired == prop.isRequired
+        && isSecret == prop.isSecret
+        && key.equals(prop.key)
+        && type.equals(prop.type)
+        && Objects.equals(defaultValue, prop.defaultValue)
+        && Objects.equals(description, prop.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(key, type, defaultValue, description, isRequired, isSecret);
   }
 }

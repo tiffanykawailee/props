@@ -7,10 +7,13 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class PropRegistry implements AutoCloseable {
   private static final LoggerInterface log = LoggerBridge.getLogger();
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  private final Map<String, Prop> boundProps = new ConcurrentHashMap<>();
 
   private final Deque<ResolverBinding> resolvers = new LinkedList<>();
   private final Duration shutdownGracePeriod;
@@ -48,21 +52,18 @@ public class PropRegistry implements AutoCloseable {
         .forEach(r -> r.resolver.refresh());
   }
 
-  /**
-   * Search all resolvers for a value
-   *
-   * @return null if a value was not found
-   */
-  public String get(String key) {
+  /** Search all resolvers for a value */
+  public Map<String, String> get(String key) {
+    Map<String, String> layers = new LinkedHashMap<>();
+
     var it = resolvers.descendingIterator();
     while (it.hasNext()) {
-      Optional<String> value = it.next().resolver.get(key);
-      if (value.isPresent()) {
-        return value.get();
-      }
+      var binding = it.next();
+      Optional<String> value = binding.resolver.get(key);
+      value.ifPresent(val -> layers.put(binding.id, val));
     }
 
-    return null;
+    return layers;
   }
 
   /**
@@ -70,23 +71,42 @@ public class PropRegistry implements AutoCloseable {
    *
    * @return null if a value was not found
    */
-  public String get(String key, String resolverId) {
+  public Map<String, String> get(String key, String resolverId) {
     // TODO: small optimization, Map<ResolverId, List position>
     var it = resolvers.descendingIterator();
     while (it.hasNext()) {
       var binding = it.next();
       if (Objects.equals(binding.id, resolverId)) {
-        return binding.resolver.get(key).orElse(null);
+        Optional<String> found = binding.resolver.get(key);
+        if (found.isPresent()) {
+          return Map.of(binding.id, found.get());
+        }
       }
     }
 
-    return null;
+    return Map.of();
   }
 
-  /** Binds the specified prop to the current {@link PropRegistry} object */
+  /**
+   * Binds the specified prop to the current {@link PropRegistry} object
+   *
+   * <p>Note: you cannot bind more than one {@link Prop} with the same key to a {@link PropRegistry}
+   * object, however, the prop will get the current registry reference. This means you can define
+   * multiple prop implementations for the same key, but only the first will be registered and will
+   * get any events.
+   */
   public void bind(Prop prop) {
     prop.setRegistry(this);
     prop.update();
+
+    Prop oldProp = boundProps.putIfAbsent(prop.key, prop);
+    if (oldProp != prop) {
+      throw new IllegalArgumentException(
+          "Prop with key "
+              + prop.key
+              + " was already registered with type "
+              + prop.type.getSimpleName());
+    }
   }
 
   /**
