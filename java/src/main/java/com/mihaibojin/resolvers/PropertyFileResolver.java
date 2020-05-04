@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class PropertyFileResolver implements Resolver {
   private static final LoggerInterface log = LoggerBridge.getLogger();
@@ -34,17 +35,19 @@ public class PropertyFileResolver implements Resolver {
   }
 
   @Override
-  public void refresh() {
+  public Set<String> refresh() {
     if (!Files.exists(location)) {
       log.debug("Skipping {}; file not found at {}", getClass().getSimpleName(), location);
-      return;
+      return Set.of();
     }
 
     try (InputStream stream = Files.newInputStream(location)) {
-      Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
+      return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
 
     } catch (IOException e) {
       log.error("Could not read configuration from " + location, e);
     }
+
+    return Set.of();
   }
 }

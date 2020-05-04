@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class PropRegistry implements AutoCloseable {
   private static final LoggerInterface log = LoggerBridge.getLogger();
@@ -46,10 +48,16 @@ public class PropRegistry implements AutoCloseable {
   }
 
   private void refreshResolvers(Collection<ResolverBinding> resolvers) {
-    resolvers
-        .parallelStream()
-        .filter(r -> r.resolver.shouldAutoUpdate())
-        .forEach(r -> r.resolver.refresh());
+    Set<String> updatedProps =
+        resolvers
+            .parallelStream()
+            .filter(r -> r.resolver.shouldAutoUpdate())
+            .map(r -> r.resolver.refresh())
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+
+    // update all bound props whose values changed during this refresh cycle
+    updatedProps.stream().map(boundProps::get).filter(Objects::nonNull).forEach(Prop::update);
   }
 
   /** Search all resolvers for a value */

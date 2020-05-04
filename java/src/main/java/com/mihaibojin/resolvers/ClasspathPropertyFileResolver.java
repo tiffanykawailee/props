@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class ClasspathPropertyFileResolver implements Resolver {
   private static final LoggerInterface log = LoggerBridge.getLogger();
@@ -34,16 +35,17 @@ public class ClasspathPropertyFileResolver implements Resolver {
   }
 
   @Override
-  public void refresh() {
+  public Set<String> refresh() {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(location)) {
       if (isNull(stream)) {
         log.debug("Skipping {}; resource not found in classpath", location);
-        return;
+        return Set.of();
       }
 
-      Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
+      return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
     } catch (IOException e) {
       log.error("Could not read configuration from classpath: " + location, e);
     }
+    return Set.of();
   }
 }

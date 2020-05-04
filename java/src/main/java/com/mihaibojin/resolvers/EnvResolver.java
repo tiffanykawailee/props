@@ -4,6 +4,7 @@ import com.mihaibojin.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class EnvResolver implements Resolver {
   private final Map<String, String> store = new HashMap<>();
@@ -15,8 +16,8 @@ public class EnvResolver implements Resolver {
   }
 
   @Override
-  public void refresh() {
-    Utils.mergeMapsInPlace(store, System.getenv());
+  public Set<String> refresh() {
+    return Utils.mergeMapsInPlace(store, System.getenv());
   }
 
   @Override

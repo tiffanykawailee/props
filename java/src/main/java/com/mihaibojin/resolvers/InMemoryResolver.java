@@ -3,6 +3,7 @@ package com.mihaibojin.resolvers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /** Useful for tests, when the implementation requires overriding values. */
 public class InMemoryResolver implements Resolver {
@@ -23,7 +24,7 @@ public class InMemoryResolver implements Resolver {
   }
 
   @Override
-  public void refresh() {
-    // do nothing
+  public Set<String> refresh() {
+    return Set.of();
   }
 }

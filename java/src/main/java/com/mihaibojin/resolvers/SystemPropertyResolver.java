@@ -4,6 +4,7 @@ import com.mihaibojin.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class SystemPropertyResolver implements Resolver {
   private final Map<String, String> store = new HashMap<>();
@@ -19,9 +20,13 @@ public class SystemPropertyResolver implements Resolver {
     return false;
   }
 
-  /** You can call this method manually, after updating the System properties object (if needed) */
+  /**
+   * You can call this method manually, after updating the System properties object (if needed)
+   *
+   * @return
+   */
   @Override
-  public void refresh() {
-    Utils.mergeMapsInPlace(store, Utils.readPropertiesToMap(System.getProperties()));
+  public Set<String> refresh() {
+    return Utils.mergeMapsInPlace(store, Utils.readPropertiesToMap(System.getProperties()));
   }
 }
