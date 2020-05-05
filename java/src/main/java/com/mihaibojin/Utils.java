@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +25,15 @@ import java.util.regex.Pattern;
 
 public class Utils {
   private static final LoggerInterface log = LoggerBridge.getLogger();
+
+  public static Instant parseInstant(String value) {
+    try {
+      return OffsetDateTime.parse(value).toInstant();
+    } catch (DateTimeParseException e) {
+      log.error("Could not parse " + value + " as a valid date/time", e);
+      return null;
+    }
+  }
 
   public static Number parseNumber(String value) {
     try {
@@ -41,6 +54,14 @@ public class Utils {
 
   public static Optional<Integer> getInt(Map<String, String> store, String key) {
     return Optional.ofNullable(store.get(key)).map(Utils::parseNumber).map(Number::intValue);
+  }
+
+  public static Optional<Instant> getInstant(Map<String, String> store, String key) {
+    return Optional.ofNullable(store.get(key)).map(Utils::parseInstant);
+  }
+
+  public static Optional<Date> getDate(Map<String, String> store, String key) {
+    return getInstant(store, key).map(Date::from);
   }
 
   public static Optional<Long> getLong(Map<String, String> store, String key) {
