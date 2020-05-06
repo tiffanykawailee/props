@@ -7,6 +7,7 @@ Thanks for your interest in contributing to `props`!
 ## Prerequisites and Tools 
 
 - [Git](https://git-scm.com/)
+- [Jabba](https://github.com/shyiko/jabba) for Java SDK management
 - [IntelliJ](https://www.jetbrains.com/idea/) or a similar editor
 - [Bazel](https://bazel.build/) or [Bazelisk](https://github.com/bazelbuild/bazelisk)
 
@@ -19,7 +20,10 @@ Thanks for your interest in contributing to `props`!
 
 ## Building and testing
 
-TBD:
+Before doing anything else, run `jabba use` in the project's root directory.
+This will ensure you are running the version of the JDK used (and tested) for this project.
+
+### TBD
 - get all dependencies
 - build
 - run all tests
