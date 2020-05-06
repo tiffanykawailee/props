@@ -11,9 +11,10 @@ public class PropRegistryTest {
   @Test
   public void testRegistry() {
     PropRegistry registry =
-        new PropRegistry(
-            new SystemPropertyResolver(true),
-            new EnvResolver(true),
-            new PropertyFileResolver(Paths.get("config.properties"), true));
+        new PropRegistry.Builder()
+            .withResolver("SYSTEM", new SystemPropertyResolver())
+            .withResolver("ENV", new EnvResolver())
+            .withResolver("CONFIG", new PropertyFileResolver(Paths.get("config.properties"), true))
+            .build();
   }
 }
