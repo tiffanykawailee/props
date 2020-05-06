@@ -5,7 +5,7 @@ import com.mihaibojin.resolvers.EnvResolver;
 import com.mihaibojin.resolvers.PropertyFileResolver;
 import com.mihaibojin.resolvers.SystemPropertyResolver;
 import java.nio.file.Paths;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 public class PropRegistryTest {
   @Test
