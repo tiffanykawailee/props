@@ -1,5 +1,7 @@
 package com.mihaibojin.prop;
 
+import static java.util.Objects.nonNull;
+
 import com.mihaibojin.logger.LoggerBridge;
 import com.mihaibojin.logger.LoggerInterface;
 import com.mihaibojin.resolvers.Resolver;
@@ -35,14 +37,8 @@ public class PropRegistry implements AutoCloseable {
     this.shutdownGracePeriod = shutdownGracePeriod;
 
     // ensure the non-auto-update resolvers have their values loaded
-    // TODO: this isn't very clean, find a way to make it better, or run once without the
-    // shouldAutoUpdate filter
-    executor.submit(
-        () ->
-            resolvers
-                .parallelStream()
-                .filter(r -> !r.resolver.shouldAutoUpdate())
-                .forEach(r -> r.resolver.refresh()));
+    // TODO: this isn't optimal, as it's blocking; add a latch
+    resolvers.parallelStream().forEach(r -> r.resolver.refresh());
 
     // and schedule the update-able ones to run periodically
     // TODO: this can be risky if the Default ForkJoinPool is busy; refactor to use own executor
@@ -111,7 +107,7 @@ public class PropRegistry implements AutoCloseable {
     prop.update();
 
     Prop oldProp = boundProps.putIfAbsent(prop.key, prop);
-    if (oldProp != prop) {
+    if (nonNull(oldProp) && oldProp != prop) {
       throw new IllegalArgumentException(
           "Prop with key "
               + prop.key

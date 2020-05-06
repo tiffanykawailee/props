@@ -36,7 +36,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
 
   @Override
   public Set<String> refresh() {
-    try (InputStream stream = getClass().getClassLoader().getResourceAsStream(location)) {
+    try (InputStream stream = getClass().getResourceAsStream(location)) {
       if (isNull(stream)) {
         log.debug("Skipping {}; resource not found in classpath", location);
         return Set.of();

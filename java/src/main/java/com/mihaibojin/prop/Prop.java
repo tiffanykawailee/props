@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-public abstract class Prop<T> {
+public abstract class Prop<T> implements TypedProp<T> {
   public final String key;
   public final Class<T> type;
   private final T defaultValue;
@@ -42,9 +42,6 @@ public abstract class Prop<T> {
 
     internalValidation();
   }
-
-  /** Parses the string value provided by a {@link Resolver} into the final type */
-  protected abstract T resolveValue(String value);
 
   /** @return a valid {@link PropRegistry} object which can satisfy this Prop */
   protected PropRegistry registry() {
@@ -78,6 +75,11 @@ public abstract class Prop<T> {
     }
 
     resolverId = id;
+  }
+
+  /** @return the current value */
+  public T value() {
+    return currentValue;
   }
 
   /**

@@ -34,7 +34,13 @@ maven_install(
         maven.artifact(
             group = "org.hamcrest",
             artifact = "hamcrest-library",
-            version = "1.3",
+            version = "2.2",
+            testonly = True,
+        ),
+        maven.artifact(
+            group = "org.mockito",
+            artifact = "mockito-core",
+            version = "3.3.3",
             testonly = True,
         ),
         maven.artifact(
