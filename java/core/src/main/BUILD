@@ -5,5 +5,5 @@ java_library(
     name = "props",
     srcs = glob(["java/**/*.java"]),
     resources = glob(["resources/**"]),
-    visibility = ["//java/src/test:__subpackages__"],
+    visibility = ["//java/core/src/test:__subpackages__"],
 )
