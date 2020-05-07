@@ -2,8 +2,7 @@ package com.mihaibojin.prop;
 
 import static java.util.Objects.nonNull;
 
-import com.mihaibojin.logger.LoggerBridge;
-import com.mihaibojin.logger.LoggerInterface;
+import com.mihaibojin.resolvers.PropertyFileResolver;
 import com.mihaibojin.resolvers.Resolver;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,10 +19,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class PropRegistry implements AutoCloseable {
-  private static final LoggerInterface log = LoggerBridge.getLogger();
+  private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private final Map<String, Prop> boundProps = new ConcurrentHashMap<>();
 
@@ -126,7 +126,7 @@ public class PropRegistry implements AutoCloseable {
     try {
       executor.awaitTermination(shutdownGracePeriod.toSeconds(), TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      log.warn("Interrupted while waiting for executor shutdown; terminating...");
+      log.warning("Interrupted while waiting for executor shutdown; terminating...");
       executor.shutdownNow();
       Thread.currentThread().interrupt();
     }

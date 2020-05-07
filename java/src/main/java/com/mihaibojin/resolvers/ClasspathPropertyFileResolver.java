@@ -1,19 +1,20 @@
 package com.mihaibojin.resolvers;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
 import com.mihaibojin.Utils;
-import com.mihaibojin.logger.LoggerBridge;
-import com.mihaibojin.logger.LoggerInterface;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClasspathPropertyFileResolver implements Resolver {
-  private static final LoggerInterface log = LoggerBridge.getLogger();
+  private static final Logger log = Logger.getLogger(ClasspathPropertyFileResolver.class.getName());
 
   private final Map<String, String> store = new HashMap<>();
   private final String location;
@@ -38,13 +39,13 @@ public class ClasspathPropertyFileResolver implements Resolver {
   public Set<String> refresh() {
     try (InputStream stream = getClass().getResourceAsStream(location)) {
       if (isNull(stream)) {
-        log.debug("Skipping {}; resource not found in classpath", location);
+        log.fine(format("Skipping %s; resource not found in classpath", location));
         return Set.of();
       }
 
       return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
     } catch (IOException e) {
-      log.error("Could not read configuration from classpath: " + location, e);
+      log.log(Level.SEVERE, "Could not read configuration from classpath: " + location, e);
     }
     return Set.of();
   }

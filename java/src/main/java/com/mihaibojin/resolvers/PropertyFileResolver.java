@@ -1,8 +1,9 @@
 package com.mihaibojin.resolvers;
 
+import static java.lang.String.format;
+import static java.util.logging.Level.SEVERE;
+
 import com.mihaibojin.Utils;
-import com.mihaibojin.logger.LoggerBridge;
-import com.mihaibojin.logger.LoggerInterface;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -11,9 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class PropertyFileResolver implements Resolver {
-  private static final LoggerInterface log = LoggerBridge.getLogger();
+  private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
 
   private final Map<String, String> store = new HashMap<>();
   private final Path location;
@@ -37,7 +39,7 @@ public class PropertyFileResolver implements Resolver {
   @Override
   public Set<String> refresh() {
     if (!Files.exists(location)) {
-      log.debug("Skipping {}; file not found at {}", getClass().getSimpleName(), location);
+      log.fine(format("Skipping %s; file not found at %s", getClass().getSimpleName(), location));
       return Set.of();
     }
 
@@ -45,7 +47,7 @@ public class PropertyFileResolver implements Resolver {
       return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
 
     } catch (IOException e) {
-      log.error("Could not read configuration from " + location, e);
+      log.log(SEVERE, "Could not read configuration from " + location, e);
     }
 
     return Set.of();

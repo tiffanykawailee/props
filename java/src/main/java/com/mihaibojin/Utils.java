@@ -1,9 +1,8 @@
 package com.mihaibojin;
 
 import static java.util.Objects.isNull;
+import static java.util.logging.Level.SEVERE;
 
-import com.mihaibojin.logger.LoggerBridge;
-import com.mihaibojin.logger.LoggerInterface;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
@@ -21,16 +20,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class Utils {
-  private static final LoggerInterface log = LoggerBridge.getLogger();
+  private static final Logger log = Logger.getLogger(Utils.class.getName());
 
   public static Instant parseInstant(String value) {
     try {
       return OffsetDateTime.parse(value).toInstant();
     } catch (DateTimeParseException e) {
-      log.error("Could not parse " + value + " as a valid date/time", e);
+      log.log(SEVERE, "Could not parse " + value + " as a valid date/time", e);
       return null;
     }
   }
@@ -39,7 +39,7 @@ public class Utils {
     try {
       return NumberFormat.getInstance().parse(value);
     } catch (ParseException e) {
-      log.error("Could not parse " + value + " to a number", e);
+      log.log(SEVERE, "Could not parse " + value + " to a number", e);
       return null;
     }
   }
@@ -92,7 +92,7 @@ public class Utils {
   public static Map<String, String> loadPropertiesFromStream(InputStream stream)
       throws IOException {
     if (isNull(stream)) {
-      log.debug("Cannot load properties from null InputStream");
+      log.info("Cannot load properties from null InputStream");
       return null;
     }
 
