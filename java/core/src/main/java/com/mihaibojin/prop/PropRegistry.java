@@ -1,6 +1,7 @@
 package com.mihaibojin.prop;
 
 import static java.util.Objects.nonNull;
+import static java.util.logging.Level.SEVERE;
 
 import com.mihaibojin.resolvers.PropertyFileResolver;
 import com.mihaibojin.resolvers.Resolver;
@@ -15,7 +16,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +29,7 @@ public class PropRegistry implements AutoCloseable {
   private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private final Map<String, Prop> boundProps = new ConcurrentHashMap<>();
+  private final CountDownLatch latch = new CountDownLatch(1);
 
   private final Deque<ResolverBinding> resolvers = new LinkedList<>();
   private final Duration shutdownGracePeriod;
@@ -37,8 +41,11 @@ public class PropRegistry implements AutoCloseable {
     this.shutdownGracePeriod = shutdownGracePeriod;
 
     // ensure the non-auto-update resolvers have their values loaded
-    // TODO: this isn't optimal, as it's blocking; add a latch
-    resolvers.parallelStream().forEach(r -> r.resolver.refresh());
+    CompletableFuture.runAsync(
+        () -> {
+          resolvers.parallelStream().forEach(r -> r.resolver.refresh());
+          latch.countDown();
+        });
 
     // and schedule the update-able ones to run periodically
     // TODO: this can be risky if the Default ForkJoinPool is busy; refactor to use own executor
@@ -47,20 +54,28 @@ public class PropRegistry implements AutoCloseable {
   }
 
   private void refreshResolvers(Collection<ResolverBinding> resolvers) {
-    Set<String> updatedProps =
+    Set<Prop> toUpdate =
         resolvers
             .parallelStream()
             .filter(r -> r.resolver.shouldAutoUpdate())
             .map(r -> r.resolver.refresh())
-            .flatMap(Collection::stream)
+            .flatMap(keys -> keys.stream().map(boundProps::get).filter(Objects::nonNull))
             .collect(Collectors.toSet());
 
-    // update all bound props whose values changed during this refresh cycle
-    updatedProps.stream().map(boundProps::get).filter(Objects::nonNull).forEach(Prop::update);
+    // TODO: this is a bit messy, find a better way to notify of changes
+    toUpdate.forEach(Prop::update);
   }
 
   /** Search all resolvers for a value */
   public Map<String, String> get(String key) {
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      log.log(SEVERE, "Could not resolve in time", e);
+      Thread.currentThread().interrupt();
+      return Map.of();
+    }
+
     Map<String, String> layers = new LinkedHashMap<>();
 
     var it = resolvers.descendingIterator();
