@@ -3,7 +3,6 @@ package com.mihaibojin.prop;
 import static java.util.Objects.nonNull;
 import static java.util.logging.Level.SEVERE;
 
-import com.mihaibojin.prop.types.SimpleProp;
 import com.mihaibojin.resolvers.PropertyFileResolver;
 import com.mihaibojin.resolvers.Resolver;
 import java.time.Duration;
@@ -121,6 +120,7 @@ public class Props implements AutoCloseable {
    */
   public void bind(AbstractProp prop) {
     prop.setRegistry(this);
+    // TODO: lazy get
     prop.update();
 
     AbstractProp oldProp = boundProps.putIfAbsent(prop.key, prop);
@@ -133,14 +133,8 @@ public class Props implements AutoCloseable {
     }
   }
 
-  public <T> AbstractProp<T> create(String key, TypedProp<T> formatter) {
-    SimpleProp<T> prop =
-        new SimpleProp<>("test.prop", null) {
-          @Override
-          public T resolveValue(String value) {
-            return formatter.resolveValue(value);
-          }
-        };
+  public <T> AbstractProp<T> create(String key, PropCoder<T> formatter) {
+    AbstractProp<T> prop = PropBuilder.<T>of(key).build(formatter::decode);
     bind(prop);
     return prop;
   }

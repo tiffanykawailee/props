@@ -4,27 +4,30 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.mihaibojin.resolvers.Resolver;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-public abstract class AbstractProp<T> implements TypedProp<T> {
+public abstract class AbstractProp<T> implements Prop<T>, PropCoder<T> {
   public final String key;
   private final T defaultValue;
   private final String description;
   private final boolean isRequired;
   private final boolean isSecret;
   protected Props registry;
-  protected String resolverId;
 
   private Map<String, T> layers;
   private T currentValue;
 
-  public AbstractProp(
+  /** @throws IllegalStateException if the constructed object is in an invalid state */
+  protected AbstractProp(
       String key, T defaultValue, String description, boolean isRequired, boolean isSecret) {
     this.key = key;
+    if (isNull(key)) {
+      throw new IllegalStateException("The prop's key cannot be null");
+    }
+
     this.defaultValue = defaultValue;
     this.description = description;
     this.isRequired = isRequired;
@@ -32,8 +35,6 @@ public abstract class AbstractProp<T> implements TypedProp<T> {
 
     // pre-initialize the prop to its default value
     currentValue = defaultValue;
-
-    internalValidation();
   }
 
   /** @return a valid {@link Props} object which can satisfy this Prop */
@@ -50,26 +51,6 @@ public abstract class AbstractProp<T> implements TypedProp<T> {
     this.registry = registry;
   }
 
-  /**
-   * @return {@link String} representing a specific {@link Resolver} or null when all registered
-   *     resolvers should be queried.
-   */
-  protected String resolverId() {
-    return resolverId;
-  }
-
-  /**
-   * In instances where a {@link AbstractProp} is tied to a specific {@link Resolver}, call this
-   * method to set a valid resolver id (one that was added to the {@link #registry()})
-   */
-  void setResolverId(String id) {
-    if (nonNull(resolverId)) {
-      throw new IllegalStateException("The resolver id can only be set once");
-    }
-
-    resolverId = id;
-  }
-
   /** @return the current value */
   public T value() {
     return currentValue;
@@ -82,18 +63,13 @@ public abstract class AbstractProp<T> implements TypedProp<T> {
    */
   public final boolean update() {
     // read all the values from the registry
-    Map<String, String> values;
-    String resolverId = resolverId();
-    if (isNull(resolverId)) {
-      values = registry().get(key);
-    } else {
-      values = registry().get(key, resolverId);
-    }
+    // TODO: this logic should be tied to the registry not the prop; also tie props to a layer
+    Map<String, String> values = registry().get(key);
 
     // process all layers and transform them into the final type
     Map<String, T> layers = new LinkedHashMap<>();
     for (Entry<String, String> entry : values.entrySet()) {
-      T resolved = resolveValue(entry.getValue());
+      T resolved = decode(entry.getValue());
       validate(resolved);
       layers.put(entry.getKey(), resolved);
     }
@@ -132,44 +108,41 @@ public abstract class AbstractProp<T> implements TypedProp<T> {
     }
   }
 
-  /**
-   * Validates the AppConf
-   *
-   * @throws IllegalStateException if the constructed object is in an invalid state
-   */
-  private void internalValidation() {
-    if (isNull(key)) {
-      throw new IllegalStateException("The prop's key cannot be null");
-    }
-  }
-
   @Override
   public String toString() {
     if (isNull(currentValue)) {
       return format("Prop{%s=null}", key);
     }
 
+    if (isSecret) {
+      return format("Prop{%s=(%s)<redacted>}", key, currentValue.getClass().getSimpleName());
+    }
+
     return format("Prop{%s=(%s)%s}", key, currentValue.getClass().getSimpleName(), currentValue);
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof AbstractProp)) {
-      return false;
-    }
-    AbstractProp<?> prop = (AbstractProp<?>) o;
-    return isRequired == prop.isRequired
-        && isSecret == prop.isSecret
-        && key.equals(prop.key)
-        && Objects.equals(defaultValue, prop.defaultValue)
-        && Objects.equals(description, prop.description);
+  public String key() {
+    return key;
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hash(key, defaultValue, description, isRequired, isSecret);
+  public T defaultValue() {
+    return defaultValue;
+  }
+
+  @Override
+  public String description() {
+    return description;
+  }
+
+  @Override
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  @Override
+  public boolean isSecret() {
+    return isSecret;
   }
 }

@@ -2,7 +2,6 @@
 
 - tests
 
-
 - custom validation + validation failure
 
 - ability to mock the response from a specific layer
@@ -13,7 +12,6 @@ Types of props:
 - Prop implementation / class (fully spec'd Prop w. dedicated class object, needs a better name)
 - SimpleProp (minimal config required to retrieve values and get updates)
 - TBD
-
 
 - https://github.com/bazelbuild/bazel/issues/3410#issuecomment-398125365
 ```
