@@ -18,16 +18,21 @@ public class ClasspathPropertyFileResolver implements Resolver {
 
   private final Map<String, String> store = new HashMap<>();
   private final String location;
-  private final boolean autoUpdate;
+  private final boolean isReloadable;
 
-  public ClasspathPropertyFileResolver(String location, boolean autoUpdate) {
+  /** Constructs a {@link Resolver} which should only read properties from the classpath once */
+  public ClasspathPropertyFileResolver(String location) {
+    this(location, false);
+  }
+
+  public ClasspathPropertyFileResolver(String location, boolean isReloadable) {
     this.location = location;
-    this.autoUpdate = autoUpdate;
+    this.isReloadable = isReloadable;
   }
 
   @Override
-  public boolean shouldAutoUpdate() {
-    return autoUpdate;
+  public boolean isReloadable() {
+    return isReloadable;
   }
 
   @Override
@@ -36,7 +41,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
   }
 
   @Override
-  public Set<String> refresh() {
+  public Set<String> reload() {
     try (InputStream stream = getClass().getResourceAsStream(location)) {
       if (isNull(stream)) {
         log.fine(format("Skipping %s; resource not found in classpath", location));
@@ -47,6 +52,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
     } catch (IOException e) {
       log.log(Level.SEVERE, "Could not read configuration from classpath: " + location, e);
     }
+
     return Set.of();
   }
 }

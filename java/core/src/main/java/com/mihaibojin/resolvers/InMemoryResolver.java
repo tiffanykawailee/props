@@ -19,12 +19,12 @@ public class InMemoryResolver implements Resolver {
   }
 
   @Override
-  public boolean shouldAutoUpdate() {
+  public boolean isReloadable() {
     return false;
   }
 
   @Override
-  public Set<String> refresh() {
+  public Set<String> reload() {
     return Set.of();
   }
 }

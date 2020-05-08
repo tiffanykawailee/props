@@ -19,16 +19,21 @@ public class PropertyFileResolver implements Resolver {
 
   private final Map<String, String> store = new HashMap<>();
   private final Path location;
-  private final boolean autoUpdate;
+  private final boolean isReloadable;
 
-  public PropertyFileResolver(Path location, boolean autoUpdate) {
+  /** Constructs a {@link Resolver} which should only read the properties file once */
+  public PropertyFileResolver(Path location) {
+    this(location, false);
+  }
+
+  public PropertyFileResolver(Path location, boolean isReloadable) {
     this.location = location;
-    this.autoUpdate = autoUpdate;
+    this.isReloadable = isReloadable;
   }
 
   @Override
-  public boolean shouldAutoUpdate() {
-    return autoUpdate;
+  public boolean isReloadable() {
+    return isReloadable;
   }
 
   @Override
@@ -37,7 +42,7 @@ public class PropertyFileResolver implements Resolver {
   }
 
   @Override
-  public Set<String> refresh() {
+  public Set<String> reload() {
     if (!Files.exists(location)) {
       log.fine(format("Skipping %s; file not found at %s", getClass().getSimpleName(), location));
       return Set.of();

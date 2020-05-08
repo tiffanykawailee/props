@@ -10,28 +10,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-public abstract class Prop<T> implements TypedProp<T> {
+public abstract class AbstractProp<T> implements TypedProp<T> {
   public final String key;
-  public final Class<T> type;
   private final T defaultValue;
   private final String description;
   private final boolean isRequired;
   private final boolean isSecret;
-  protected PropRegistry registry;
+  protected Props registry;
   protected String resolverId;
 
   private Map<String, T> layers;
   private T currentValue;
 
-  public Prop(
-      String key,
-      Class<T> type,
-      T defaultValue,
-      String description,
-      boolean isRequired,
-      boolean isSecret) {
+  public AbstractProp(
+      String key, T defaultValue, String description, boolean isRequired, boolean isSecret) {
     this.key = key;
-    this.type = type;
     this.defaultValue = defaultValue;
     this.description = description;
     this.isRequired = isRequired;
@@ -43,13 +36,13 @@ public abstract class Prop<T> implements TypedProp<T> {
     internalValidation();
   }
 
-  /** @return a valid {@link PropRegistry} object which can satisfy this Prop */
-  protected PropRegistry registry() {
+  /** @return a valid {@link Props} object which can satisfy this Prop */
+  protected Props registry() {
     return registry;
   }
 
-  /** Convenience method for setting the {@link PropRegistry} tied to the current Prop */
-  void setRegistry(PropRegistry registry) {
+  /** Convenience method for setting the {@link Props} tied to the current Prop */
+  void setRegistry(Props registry) {
     if (nonNull(this.registry)) {
       throw new IllegalStateException("The prop can only be bound to a single Registry");
     }
@@ -66,8 +59,8 @@ public abstract class Prop<T> implements TypedProp<T> {
   }
 
   /**
-   * In instances where a {@link Prop} is tied to a specific {@link Resolver}, call this method to
-   * set a valid resolver id (one that was added to the {@link #registry()})
+   * In instances where a {@link AbstractProp} is tied to a specific {@link Resolver}, call this
+   * method to set a valid resolver id (one that was added to the {@link #registry()})
    */
   void setResolverId(String id) {
     if (nonNull(resolverId)) {
@@ -152,7 +145,11 @@ public abstract class Prop<T> implements TypedProp<T> {
 
   @Override
   public String toString() {
-    return format("Prop{%s=(%s)%s}", key, type.getSimpleName(), currentValue);
+    if (isNull(currentValue)) {
+      return format("Prop{%s=null}", key);
+    }
+
+    return format("Prop{%s=(%s)%s}", key, currentValue.getClass().getSimpleName(), currentValue);
   }
 
   @Override
@@ -160,20 +157,19 @@ public abstract class Prop<T> implements TypedProp<T> {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Prop)) {
+    if (!(o instanceof AbstractProp)) {
       return false;
     }
-    Prop<?> prop = (Prop<?>) o;
+    AbstractProp<?> prop = (AbstractProp<?>) o;
     return isRequired == prop.isRequired
         && isSecret == prop.isSecret
         && key.equals(prop.key)
-        && type.equals(prop.type)
         && Objects.equals(defaultValue, prop.defaultValue)
         && Objects.equals(description, prop.description);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, type, defaultValue, description, isRequired, isSecret);
+    return Objects.hash(key, defaultValue, description, isRequired, isSecret);
   }
 }
