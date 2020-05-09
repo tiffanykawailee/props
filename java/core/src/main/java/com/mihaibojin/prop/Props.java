@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class Props implements AutoCloseable {
   private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-  private final Map<String, AbstractProp> boundProps = new ConcurrentHashMap<>();
+  private final Map<String, AbstractProp<?>> boundProps = new ConcurrentHashMap<>();
   private final CountDownLatch latch = new CountDownLatch(1);
 
   private final Deque<ResolverWrapper> resolvers = new LinkedList<>();
@@ -110,6 +110,12 @@ public class Props implements AutoCloseable {
     return Map.of();
   }
 
+  public <T> Prop<T> create(String key, PropCoder<T> formatter) {
+    AbstractProp<T> prop = PropBuilder.<T>of(key).build(formatter::decode);
+    bind(prop);
+    return prop;
+  }
+
   /**
    * Binds the specified prop to the current {@link Props} object
    *
@@ -118,12 +124,12 @@ public class Props implements AutoCloseable {
    * define multiple prop implementations for the same key, but only the first will be registered
    * and will get any events.
    */
-  public void bind(AbstractProp prop) {
+  public <T> void bind(AbstractProp<T> prop) {
     prop.setRegistry(this);
     // TODO: lazy get
     prop.update();
 
-    AbstractProp oldProp = boundProps.putIfAbsent(prop.key, prop);
+    AbstractProp<?> oldProp = boundProps.putIfAbsent(prop.key, prop);
     if (nonNull(oldProp) && oldProp != prop) {
       throw new IllegalArgumentException(
           "Prop with key "
@@ -133,10 +139,9 @@ public class Props implements AutoCloseable {
     }
   }
 
-  public <T> AbstractProp<T> create(String key, PropCoder<T> formatter) {
-    AbstractProp<T> prop = PropBuilder.<T>of(key).build(formatter::decode);
-    bind(prop);
-    return prop;
+  /** @throws ClassCastException if the property key is associated with a different type */
+  public <T> Prop<T> retrieve(String key, Class<Prop<T>> clz) {
+    return clz.cast(boundProps.get(key));
   }
 
   /**

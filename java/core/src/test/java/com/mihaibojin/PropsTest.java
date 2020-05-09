@@ -3,7 +3,7 @@ package com.mihaibojin;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.mihaibojin.prop.AbstractProp;
+import com.mihaibojin.prop.Prop;
 import com.mihaibojin.prop.PropTypes;
 import com.mihaibojin.prop.Props;
 import com.mihaibojin.resolvers.ClasspathPropertyFileResolver;
@@ -23,7 +23,7 @@ public class PropsTest {
                 "CONFIG", new ClasspathPropertyFileResolver("/propfiles/config.properties"))
             .build();
 
-    AbstractProp<Integer> aProp = props.create("test.prop", PropTypes.integer());
+    Prop<Integer> aProp = props.create("test.prop", PropTypes.integer());
 
     assertThat(aProp.value(), equalTo(1));
   }

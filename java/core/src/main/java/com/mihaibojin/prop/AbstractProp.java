@@ -21,7 +21,7 @@ public abstract class AbstractProp<T> implements Prop<T>, PropCoder<T> {
   private T currentValue;
 
   /** @throws IllegalStateException if the constructed object is in an invalid state */
-  protected AbstractProp(
+  AbstractProp(
       String key, T defaultValue, String description, boolean isRequired, boolean isSecret) {
     this.key = key;
     if (isNull(key)) {
@@ -52,6 +52,7 @@ public abstract class AbstractProp<T> implements Prop<T>, PropCoder<T> {
   }
 
   /** @return the current value */
+  @Override
   public T value() {
     return currentValue;
   }

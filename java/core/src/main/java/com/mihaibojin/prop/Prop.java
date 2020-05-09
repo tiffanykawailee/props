@@ -10,4 +10,6 @@ public interface Prop<T> {
   boolean isRequired();
 
   boolean isSecret();
+
+  T value();
 }
