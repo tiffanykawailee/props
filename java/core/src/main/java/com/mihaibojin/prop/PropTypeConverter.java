@@ -1,7 +1,7 @@
 package com.mihaibojin.prop;
 
 @FunctionalInterface
-public interface PropCoder<T> {
+public interface PropTypeConverter<T> {
   /** Decodes and decrypts the passed string value into its final type */
   T decode(String value);
 
