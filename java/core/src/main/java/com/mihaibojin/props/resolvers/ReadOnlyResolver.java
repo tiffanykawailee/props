@@ -1,4 +1,4 @@
-package com.mihaibojin.resolvers;
+package com.mihaibojin.props.resolvers;
 
 import java.util.Set;
 

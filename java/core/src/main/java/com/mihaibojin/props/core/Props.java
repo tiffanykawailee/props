@@ -1,11 +1,12 @@
-package com.mihaibojin.prop;
+package com.mihaibojin.props.core;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static java.util.logging.Level.SEVERE;
 
-import com.mihaibojin.resolvers.PropertyFileResolver;
-import com.mihaibojin.resolvers.Resolver;
+import com.mihaibojin.props.resolvers.PropertyFileResolver;
+import com.mihaibojin.props.resolvers.Resolver;
+import com.mihaibojin.props.types.PropTypeConverter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -276,7 +277,7 @@ public class Props implements AutoCloseable {
 
     /**
      * Allows customizing the refresh interval at which auto-update-able {@link
-     * com.mihaibojin.resolvers.Resolver}s are refreshed
+     * com.mihaibojin.props.resolvers.Resolver}s are refreshed
      */
     public Factory refreshInterval(Duration interval) {
       refreshInterval = interval;

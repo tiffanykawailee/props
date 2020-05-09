@@ -1,7 +1,9 @@
-package com.mihaibojin.prop;
+package com.mihaibojin.props.core;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+
+import com.mihaibojin.props.types.PropTypeConverter;
 
 public abstract class AbstractProp<T> implements Prop<T>, PropTypeConverter<T> {
   public final String key;

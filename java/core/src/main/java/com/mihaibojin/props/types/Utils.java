@@ -1,4 +1,4 @@
-package com.mihaibojin;
+package com.mihaibojin.props.types;
 
 import static java.util.Objects.isNull;
 import static java.util.logging.Level.SEVERE;

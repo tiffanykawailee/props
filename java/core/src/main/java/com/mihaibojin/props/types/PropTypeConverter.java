@@ -1,4 +1,4 @@
-package com.mihaibojin.prop;
+package com.mihaibojin.props.types;
 
 @FunctionalInterface
 public interface PropTypeConverter<T> {

@@ -1,4 +1,4 @@
-package com.mihaibojin.prop;
+package com.mihaibojin.props.core;
 
 public interface Prop<T> {
   String key();

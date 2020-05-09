@@ -1,6 +1,5 @@
-package com.mihaibojin.prop;
+package com.mihaibojin.props.types;
 
-import com.mihaibojin.Utils;
 import java.util.Objects;
 
 public class PropTypeDecoder {
