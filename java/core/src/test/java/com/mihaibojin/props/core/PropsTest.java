@@ -11,18 +11,57 @@ import org.junit.jupiter.api.Test;
 
 public class PropsTest {
   @Test
-  public void registrySmokeTest() {
+  public void loadValueFromClassPath() {
     // ARRANGE
     Props props =
         Props.factory()
             .withResolver("SYSTEM", new SystemPropertyResolver())
             .withResolver("ENV", new EnvResolver())
             .withResolver(
-                "CONFIG", new ClasspathPropertyFileResolver("/propfiles/config.properties"))
+                "CONFIG", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
             .build();
 
-    AbstractProp<Integer> aProp = props.create("test.prop", PropTypeDecoder.asInteger()).build();
+    // ACT
+    Integer aValue = props.create("prop.id", PropTypeDecoder.asInteger()).build().value();
 
-    assertThat(aProp.value(), equalTo(1));
+    // ASSERT
+    assertThat(aValue, equalTo(1));
+  }
+
+  @Test
+  public void resolverPriorityOrder() {
+    // ARRANGE
+    Props props =
+        Props.factory()
+            .withResolver(
+                "CONFIG1", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
+            .withResolver(
+                "CONFIG2", new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
+            .build();
+
+    // ACT
+    Integer aValue = props.create("prop.id", PropTypeDecoder.asInteger()).build().value();
+
+    // ASSERT
+    assertThat(aValue, equalTo(2));
+  }
+
+  @Test
+  public void getValueFromSpecificResolver() {
+    // ARRANGE
+    Props props =
+        Props.factory()
+            .withResolver(
+                "CONFIG1", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
+            .withResolver(
+                "CONFIG2", new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
+            .build();
+
+    // ACT
+    Integer aValue =
+        props.create("prop.id", PropTypeDecoder.asInteger()).resolver("CONFIG1").build().value();
+
+    // ASSERT
+    assertThat(aValue, equalTo(1));
   }
 }

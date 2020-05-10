@@ -30,11 +30,13 @@ import java.util.stream.Collectors;
 public class Props implements AutoCloseable {
   private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+  // TODO(mihaibojin): boundProps is read-heavy, find a better data structure
   private final Map<String, AbstractProp<?>> boundProps = new ConcurrentHashMap<>();
+  private final Map<String, String> propIdToResolver = new ConcurrentHashMap<>();
   private final CountDownLatch latch = new CountDownLatch(1);
 
   private final List<String> prioritizedResolvers;
-  private final Map<String, Resolver> resolvers2;
+  private final Map<String, Resolver> resolvers;
   private final Duration shutdownGracePeriod;
   private final Duration refreshInterval;
 
@@ -42,7 +44,7 @@ public class Props implements AutoCloseable {
       LinkedHashMap<String, Resolver> resolvers,
       Duration refreshInterval,
       Duration shutdownGracePeriod) {
-    resolvers2 = Collections.unmodifiableMap(resolvers);
+    this.resolvers = Collections.unmodifiableMap(resolvers);
 
     // generate a list of resolver IDs, ordered by priority (highest first)
     ArrayList<String> ids = new ArrayList<>(resolvers.keySet());
@@ -55,14 +57,14 @@ public class Props implements AutoCloseable {
     // ensure the non-auto-update resolvers have their values loaded
     CompletableFuture.runAsync(
         () -> {
-          resolvers2.entrySet().parallelStream().forEach(Props::safeReload);
+          this.resolvers.entrySet().parallelStream().forEach(Props::safeReload);
           latch.countDown();
         });
 
     // and schedule the update-able ones to run periodically
     // TODO: this can be risky if the Default ForkJoinPool is busy; refactor to use own executor
     executor.scheduleAtFixedRate(
-        () -> refreshResolvers(resolvers2), 0, refreshInterval.toSeconds(), TimeUnit.SECONDS);
+        () -> refreshResolvers(this.resolvers), 0, refreshInterval.toSeconds(), TimeUnit.SECONDS);
   }
 
   /**
@@ -96,17 +98,18 @@ public class Props implements AutoCloseable {
   }
 
   /**
-   * Binds the specified prop to the current {@link Props} object
+   * Binds the specified prop to the current {@link Props} registry.
+   *
+   * <p>If a non-null <code>resolverId</code> is specified, it will link the prop to that resolver.
    *
    * @throws IllegalArgumentException if attempting to bind a {@link Prop} for a key which was
    *     already bound to another object. This is to encourage efficiency and define a single object
    *     per key, keeping memory usage low(er). Use the {@link #retrieve(String)} and {@link
    *     #retrieve(String, Class)} methods to get a pre-existing instance.
+   * @throws IllegalArgumentException if the specified <code>resolverId</code> is not know to the
+   *     registry.
    */
-  public <T> AbstractProp<T> bind(AbstractProp<T> prop) {
-    // TODO(mihaibojin): lazy load, block on get
-    update(prop);
-
+  public <T> AbstractProp<T> bind(AbstractProp<T> prop, String resolverId) {
     AbstractProp<?> oldProp = boundProps.putIfAbsent(prop.key, prop);
     if (nonNull(oldProp) && oldProp != prop) {
       throw new IllegalArgumentException(
@@ -116,7 +119,25 @@ public class Props implements AutoCloseable {
               + oldProp.getClass().getSimpleName());
     }
 
+    if (nonNull(resolverId)) {
+      // only register the prop with a resolver, if the id is non-null and valid
+      validateResolver(resolverId);
+      propIdToResolver.put(prop.key(), resolverId);
+    }
+
+    // TODO(mihaibojin): lazy load, block on get
+    update(prop);
+
     return prop;
+  }
+
+  /**
+   * Convenience method for users who need to bind {@link Prop}s manually.
+   *
+   * @see #bind(AbstractProp, String)
+   */
+  public <T> AbstractProp<T> bind(AbstractProp<T> prop) {
+    return bind(prop, null);
   }
 
   /**
@@ -125,9 +146,19 @@ public class Props implements AutoCloseable {
    * @return true if the property was updated, or false if it kept its value
    */
   public <T> boolean update(AbstractProp<T> prop) {
-    // load the key
-    Optional<T> propValue = resolveProp(prop);
+    final Optional<T> propValue;
+
+    // determine if the prop is linked to a specific resolver
+    String resolverId = propIdToResolver.get(prop.key());
+    if (nonNull(resolverId)) {
+      propValue = resolveProp(prop, resolverId);
+    } else {
+      // otherwise search all resolvers
+      propValue = resolveProp(prop);
+    }
+
     if (propValue.isEmpty()) {
+      // nothing to update if a value was not found
       return false;
     }
 
@@ -152,7 +183,7 @@ public class Props implements AutoCloseable {
     }
 
     for (String id : prioritizedResolvers) {
-      Optional<String> value = resolvers2.get(id).get(prop.key());
+      Optional<String> value = resolvers.get(id).get(prop.key());
       if (value.isPresent()) {
         log.log(Level.FINER, format("%s resolved by %s", prop.key(), id));
 
@@ -169,16 +200,24 @@ public class Props implements AutoCloseable {
 
   /** Only attempt a specific resolver */
   <T> Optional<T> resolveProp(AbstractProp<T> prop, String resolverId) {
+    validateResolver(resolverId);
+
     if (!waitForInitialLoad()) {
       return Optional.empty();
     }
 
-    if (!resolvers2.containsKey(resolverId)) {
+    return resolvers.get(resolverId).get(prop.key).map(prop::decode);
+  }
+
+  /**
+   * @throws IllegalArgumentException if the specified id is not known to the current {@link Props}
+   *     registry
+   */
+  private void validateResolver(String resolverId) {
+    if (!resolvers.containsKey(resolverId)) {
       throw new IllegalArgumentException(
           "Resolver " + resolverId + " is not registered with the current registry");
     }
-
-    return resolvers2.get(resolverId).get(prop.key).map(prop::decode);
   }
 
   /**
@@ -193,7 +232,7 @@ public class Props implements AutoCloseable {
     Map<String, T> layers = new LinkedHashMap<>();
 
     // process all layers and transform them into the final type
-    for (Entry<String, Resolver> entry : resolvers2.entrySet()) {
+    for (Entry<String, Resolver> entry : resolvers.entrySet()) {
       Optional<String> value = entry.getValue().get(prop.key());
       if (value.isPresent()) {
         T resolved = prop.decode(value.get());
@@ -298,27 +337,6 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** Wrapper for {@link Resolver}s */
-  private static class ResolverWrapper {
-    final String id;
-    final Resolver resolver;
-
-    private ResolverWrapper(String id, Resolver resolver) {
-      this.id = id;
-      this.resolver = resolver;
-    }
-
-    /** Convenience method for making the API easier to read */
-    private static ResolverWrapper of(String id, Resolver resolver) {
-      return new ResolverWrapper(id, resolver);
-    }
-
-    @Override
-    public String toString() {
-      return "Resolver{" + id + '}';
-    }
-  }
-
   /** Builder class for creating custom {@link Prop}s from the current {@link Props} registry */
   public class Builder<T> {
     public final String key;
@@ -327,28 +345,35 @@ public class Props implements AutoCloseable {
     private String description;
     private boolean isRequired;
     private boolean isSecret;
+    private String resolverId;
 
     private Builder(String key, PropTypeConverter<T> converter) {
       this.key = key;
       this.converter = converter;
     }
 
-    public Builder defaultValue(T defaultValue) {
+    public Builder<T> resolver(String resolverId) {
+      validateResolver(resolverId);
+      this.resolverId = resolverId;
+      return this;
+    }
+
+    public Builder<T> defaultValue(T defaultValue) {
       this.defaultValue = defaultValue;
       return this;
     }
 
-    public Builder description(String description) {
+    public Builder<T> description(String description) {
       this.description = description;
       return this;
     }
 
-    public Builder isRequired(boolean isRequired) {
+    public Builder<T> isRequired(boolean isRequired) {
       this.isRequired = isRequired;
       return this;
     }
 
-    public Builder isSecret(boolean isSecret) {
+    public Builder<T> isSecret(boolean isSecret) {
       this.isSecret = isSecret;
       return this;
     }
@@ -368,7 +393,8 @@ public class Props implements AutoCloseable {
             public String encode(T value) {
               return converter.encode(value);
             }
-          });
+          },
+          resolverId);
     }
   }
 }
