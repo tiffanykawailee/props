@@ -3,7 +3,6 @@ package com.mihaibojin.props.resolvers;
 import static java.lang.String.format;
 import static java.util.logging.Level.SEVERE;
 
-import com.mihaibojin.props.types.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -49,7 +48,7 @@ public class PropertyFileResolver implements Resolver {
     }
 
     try (InputStream stream = Files.newInputStream(location)) {
-      return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
+      return ResolverUtils.mergeMapsInPlace(store, ResolverUtils.loadPropertiesFromStream(stream));
 
     } catch (IOException e) {
       log.log(SEVERE, "Could not read configuration from " + location, e);

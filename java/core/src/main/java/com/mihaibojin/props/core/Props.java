@@ -79,7 +79,7 @@ public class Props implements AutoCloseable {
    * @throws IllegalArgumentException if the specified <code>resolverId</code> is not know to the
    *     registry.
    */
-  public <T> AbstractProp<T> bind(AbstractProp<T> prop, String resolverId) {
+  public <T, R extends AbstractProp<T>> R bind(R prop, String resolverId) {
     AbstractProp<?> oldProp = boundProps.putIfAbsent(prop.key, prop);
     if (nonNull(oldProp) && oldProp != prop) {
       throw new IllegalArgumentException(
@@ -106,7 +106,7 @@ public class Props implements AutoCloseable {
    *
    * @see #bind(AbstractProp, String)
    */
-  public <T> AbstractProp<T> bind(AbstractProp<T> prop) {
+  public <T, R extends AbstractProp<T>> R bind(R prop) {
     return bind(prop, null);
   }
 
@@ -123,7 +123,7 @@ public class Props implements AutoCloseable {
    * @return an existing (bound) {@link Prop} object, cast to the expected type, or <code>null
    *     </code> if a prop was not bound for the specified key
    */
-  public <T> Prop<T> retrieve(String key, Class<Prop<T>> clz) {
+  public <T, R extends Prop<T>> R retrieve(String key, Class<R> clz) {
     return clz.cast(boundProps.get(key));
   }
 
@@ -260,9 +260,7 @@ public class Props implements AutoCloseable {
   /** Refreshes values from all the registered {@link Resolver}s */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
     Set<? extends AbstractProp<?>> toUpdate =
-        resolvers
-            .entrySet()
-            .parallelStream()
+        resolvers.entrySet().parallelStream()
             .filter(r -> r.getValue().isReloadable())
             .map(Props::safeReload)
             .flatMap(keys -> keys.stream().map(boundProps::get).filter(Objects::nonNull))

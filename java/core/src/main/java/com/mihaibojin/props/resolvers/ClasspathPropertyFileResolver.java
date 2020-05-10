@@ -3,7 +3,6 @@ package com.mihaibojin.props.resolvers;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-import com.mihaibojin.props.types.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
         return Set.of();
       }
 
-      return Utils.mergeMapsInPlace(store, Utils.loadPropertiesFromStream(stream));
+      return ResolverUtils.mergeMapsInPlace(store, ResolverUtils.loadPropertiesFromStream(stream));
     } catch (IOException e) {
       log.log(Level.SEVERE, "Could not read configuration from classpath: " + location, e);
     }
