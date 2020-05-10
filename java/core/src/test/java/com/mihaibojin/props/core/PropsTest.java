@@ -3,10 +3,10 @@ package com.mihaibojin.props.core;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+import com.mihaibojin.props.converters.IntegerConverter;
 import com.mihaibojin.props.resolvers.ClasspathPropertyFileResolver;
 import com.mihaibojin.props.resolvers.EnvResolver;
 import com.mihaibojin.props.resolvers.SystemPropertyResolver;
-import com.mihaibojin.props.types.PropTypeDecoder;
 import org.junit.jupiter.api.Test;
 
 public class PropsTest {
@@ -22,7 +22,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.builder("prop.id", PropTypeDecoder.asInteger()).build().value();
+    Integer aValue = props.builder("prop.id", new IntegerConverter() {}).build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(1));
@@ -40,7 +40,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.builder("prop.id", PropTypeDecoder.asInteger()).build().value();
+    Integer aValue = props.builder("prop.id", new IntegerConverter() {}).build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(2));
@@ -59,7 +59,7 @@ public class PropsTest {
 
     // ACT
     Integer aValue =
-        props.builder("prop.id", PropTypeDecoder.asInteger()).resolver("CONFIG1").build().value();
+        props.builder("prop.id", new IntegerConverter() {}).resolver("CONFIG1").build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(1));

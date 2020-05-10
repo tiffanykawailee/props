@@ -1,5 +1,6 @@
 PKGNAME=props
 GOOGLE_JAVA_FORMAT_VERSION=1.7
+FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 
 default: build
 
@@ -22,18 +23,17 @@ clean:
 .PHONY: fmt
 fmt:
 	@echo "==> Formatting all the code..."
-	$(shell find . -name \"*.java\" | xargs java -jar lib/google-java-format-1.8-all-deps.jar --set-exit-if-changed)
+	$(shell find . -name \"*.java\" | xargs java -jar $(FORMATTER) --set-exit-if-changed)
 
 .PHONY: fmtcheck
 fmtcheck:
 	@echo "==> Ensuring all the code was properly formatted..."
-	find . -name "*.java" | xargs java -jar lib/google-java-format-1.8-all-deps.jar --set-exit-if-changed -n
+	find . -name "*.java" | xargs java -jar $(FORMATTER) --set-exit-if-changed -n
 
 .PHONY: vet
 vet:
 	@echo "==> Not implemented yet."
 
-FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 .PHONY: setup
 setup:
 ifeq (,$(wildcard $(FORMATTER)))

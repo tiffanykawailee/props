@@ -4,9 +4,9 @@ import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 import static java.util.logging.Level.SEVERE;
 
+import com.mihaibojin.props.converters.PropTypeConverter;
 import com.mihaibojin.props.resolvers.PropertyFileResolver;
 import com.mihaibojin.props.resolvers.Resolver;
-import com.mihaibojin.props.types.PropTypeConverter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -260,7 +260,9 @@ public class Props implements AutoCloseable {
   /** Refreshes values from all the registered {@link Resolver}s */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
     Set<? extends AbstractProp<?>> toUpdate =
-        resolvers.entrySet().parallelStream()
+        resolvers
+            .entrySet()
+            .parallelStream()
             .filter(r -> r.getValue().isReloadable())
             .map(Props::safeReload)
             .flatMap(keys -> keys.stream().map(boundProps::get).filter(Objects::nonNull))
