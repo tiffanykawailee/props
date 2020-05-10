@@ -68,36 +68,6 @@ public class Props implements AutoCloseable {
   }
 
   /**
-   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions
-   */
-  private static Set<String> safeReload(Entry<String, Resolver> res) {
-    try {
-      return res.getValue().reload();
-    } catch (Throwable t) {
-      log.log(SEVERE, "Unexpected error reloading props from " + res.getKey(), t);
-    }
-    return Set.of();
-  }
-
-  /** Refreshes values from all the registered {@link Resolver}s */
-  private void refreshResolvers(Map<String, Resolver> resolvers) {
-    Set<? extends AbstractProp<?>> toUpdate =
-        resolvers
-            .entrySet()
-            .parallelStream()
-            .filter(r -> r.getValue().isReloadable())
-            .map(Props::safeReload)
-            .flatMap(keys -> keys.stream().map(boundProps::get).filter(Objects::nonNull))
-            // we need to collect since we need all layers to have finished their update cycle
-            // before reading them
-            .collect(Collectors.toSet());
-
-    // TODO(mihaibojin): in the future, this will be replace with a better mechanism that keeps
-    // track of which resolver owns each prop
-    toUpdate.forEach(this::update);
-  }
-
-  /**
    * Binds the specified prop to the current {@link Props} registry.
    *
    * <p>If a non-null <code>resolverId</code> is specified, it will link the prop to that resolver.
@@ -141,11 +111,28 @@ public class Props implements AutoCloseable {
   }
 
   /**
+   * @return an existing (bound) {@link Prop} object, or <code>null</code> if one does not exist for
+   *     the specified key
+   */
+  public Prop<?> retrieve(String key) {
+    return boundProps.get(key);
+  }
+
+  /**
+   * @throws ClassCastException if the property key is associated with a different type
+   * @return an existing (bound) {@link Prop} object, cast to the expected type, or <code>null
+   *     </code> if a prop was not bound for the specified key
+   */
+  public <T> Prop<T> retrieve(String key, Class<Prop<T>> clz) {
+    return clz.cast(boundProps.get(key));
+  }
+
+  /**
    * Update the {@link Prop}'s current value
    *
    * @return true if the property was updated, or false if it kept its value
    */
-  public <T> boolean update(AbstractProp<T> prop) {
+  protected <T> boolean update(AbstractProp<T> prop) {
     final Optional<T> propValue;
 
     // determine if the prop is linked to a specific resolver
@@ -236,7 +223,7 @@ public class Props implements AutoCloseable {
       Optional<String> value = entry.getValue().get(prop.key());
       if (value.isPresent()) {
         T resolved = prop.decode(value.get());
-        prop.validateOnSet(resolved);
+        prop.validateBeforeSet(resolved);
         layers.put(entry.getKey(), resolved);
       }
     }
@@ -258,25 +245,34 @@ public class Props implements AutoCloseable {
     }
   }
 
-  public <T> Builder<T> create(String key, PropTypeConverter<T> converter) {
-    return new Builder<>(key, converter);
+  /**
+   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions
+   */
+  private static Set<String> safeReload(Entry<String, Resolver> res) {
+    try {
+      return res.getValue().reload();
+    } catch (Throwable t) {
+      log.log(SEVERE, "Unexpected error reloading props from " + res.getKey(), t);
+    }
+    return Set.of();
   }
 
-  /**
-   * @return an existing (bound) {@link Prop} object, or <code>null</code> if one does not exist for
-   *     the specified key
-   */
-  public Prop<?> retrieve(String key) {
-    return boundProps.get(key);
-  }
+  /** Refreshes values from all the registered {@link Resolver}s */
+  private void refreshResolvers(Map<String, Resolver> resolvers) {
+    Set<? extends AbstractProp<?>> toUpdate =
+        resolvers
+            .entrySet()
+            .parallelStream()
+            .filter(r -> r.getValue().isReloadable())
+            .map(Props::safeReload)
+            .flatMap(keys -> keys.stream().map(boundProps::get).filter(Objects::nonNull))
+            // we need to collect since we need all layers to have finished their update cycle
+            // before reading them
+            .collect(Collectors.toSet());
 
-  /**
-   * @throws ClassCastException if the property key is associated with a different type
-   * @return an existing (bound) {@link Prop} object, cast to the expected type, or <code>null
-   *     </code> if a prop was not bound for the specified key
-   */
-  public <T> Prop<T> retrieve(String key, Class<Prop<T>> clz) {
-    return clz.cast(boundProps.get(key));
+    // TODO(mihaibojin): in the future, this will be replace with a better mechanism that keeps
+    // track of which resolver owns each prop
+    toUpdate.forEach(this::update);
   }
 
   /**
@@ -295,12 +291,12 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** @return a {@link Factory} object used to configure a {@link Props} instance */
+  /** Convenience method for configuring {@link Props} registry objects */
   public static Factory factory() {
     return new Factory();
   }
 
-  /** Factory for {@link Props} */
+  /** Factory class for building {@link Props} registry classes */
   public static class Factory {
     private final LinkedHashMap<String, Resolver> resolvers = new LinkedHashMap<>();
     private Duration refreshInterval = Duration.ofSeconds(30);
@@ -335,6 +331,11 @@ public class Props implements AutoCloseable {
     public Props build() {
       return new Props(resolvers, refreshInterval, shutdownGracePeriod);
     }
+  }
+
+  /** Convenience method for building {@link Prop}s */
+  public <T> Builder<T> builder(String key, PropTypeConverter<T> converter) {
+    return new Builder<>(key, converter);
   }
 
   /** Builder class for creating custom {@link Prop}s from the current {@link Props} registry */

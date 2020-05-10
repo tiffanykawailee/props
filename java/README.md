@@ -1,5 +1,7 @@
 ### Backlog
 
+- example with encode/decode
+
 - tests
 
 - custom validation + validation failure

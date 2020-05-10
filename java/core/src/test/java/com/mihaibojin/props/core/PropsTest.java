@@ -22,7 +22,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.create("prop.id", PropTypeDecoder.asInteger()).build().value();
+    Integer aValue = props.builder("prop.id", PropTypeDecoder.asInteger()).build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(1));
@@ -40,7 +40,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.create("prop.id", PropTypeDecoder.asInteger()).build().value();
+    Integer aValue = props.builder("prop.id", PropTypeDecoder.asInteger()).build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(2));
@@ -59,7 +59,7 @@ public class PropsTest {
 
     // ACT
     Integer aValue =
-        props.create("prop.id", PropTypeDecoder.asInteger()).resolver("CONFIG1").build().value();
+        props.builder("prop.id", PropTypeDecoder.asInteger()).resolver("CONFIG1").build().value();
 
     // ASSERT
     assertThat(aValue, equalTo(1));
