@@ -3,10 +3,10 @@ package com.mihaibojin.props.core;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.mihaibojin.props.converters.IntegerConverter;
-import com.mihaibojin.props.resolvers.ClasspathPropertyFileResolver;
-import com.mihaibojin.props.resolvers.EnvResolver;
-import com.mihaibojin.props.resolvers.SystemPropertyResolver;
+import com.mihaibojin.props.core.converters.IntegerConverter;
+import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
+import com.mihaibojin.props.core.resolvers.EnvResolver;
+import com.mihaibojin.props.core.resolvers.SystemPropertyResolver;
 import org.junit.jupiter.api.Test;
 
 public class PropsTest {

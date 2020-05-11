@@ -2,8 +2,6 @@
 
 - example with encode/decode
 
-- configure JPMS/exports: https://www.baeldung.com/java-9-modularity
-
 - prepare for publishing to Maven Central
   - https://medium.com/wix-engineering/how-to-publish-artifacts-from-bazel-to-maven-central-71da0cf990f5
   - create a GPG key and upload it to GitHub (along with `DEPLOY_MAVEN_USERNAME` and `DEPLOY_MAVEN_PASSWORD`)

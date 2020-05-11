@@ -3,7 +3,7 @@ package com.mihaibojin.props.core;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-import com.mihaibojin.props.converters.PropTypeConverter;
+import com.mihaibojin.props.core.converters.PropTypeConverter;
 
 public abstract class AbstractProp<T> implements Prop<T>, PropTypeConverter<T> {
   public final String key;
