@@ -13,7 +13,7 @@ java_junit5_test(
     resources = glob(["resources/**"]),
     test_package = "com.mihaibojin",
     deps = [
-        "//java/core/src/main:props",
+        "//java/core/src/main:props-core",
         "//java/third_party/hamcrest:hamcrest",
         "//java/third_party/mockito:mockito",
     ],

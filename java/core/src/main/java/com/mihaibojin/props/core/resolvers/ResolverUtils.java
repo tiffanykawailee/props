@@ -50,9 +50,9 @@ public class ResolverUtils {
 
   /**
    * Merges the <code>collector</code> and <code>updated</code> maps by:
-   * <li>- deleting any keys which are no longer defined in <code>updated</code>
-   * <li>- updating any keys whose values have changed in <code>updated</code>
-   * <li>- setting any new keys whose values have been added in <code>updated</code>
+   * <li/>- deleting any keys which are no longer defined in <code>updated</code>
+   * <li/>- updating any keys whose values have changed in <code>updated</code>
+   * <li/>- setting any new keys whose values have been added in <code>updated</code>
    *
    * @return the {@link Set} of new, updated, and deleted keys
    */

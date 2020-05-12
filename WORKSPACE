@@ -14,6 +14,29 @@ http_archive(
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 # END https://github.com/bazelbuild/rules_jvm_external
 
+# START bazel_skylib
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "bazel_skylib",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
+    ],
+    sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
+)
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+bazel_skylib_workspace()
+# END bazel_skylib
+
+# BEGIN bazel distribution
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+git_repository(
+    name = "graknlabs_bazel_distribution",
+    remote = "https://github.com/graknlabs/bazel-distribution",
+    commit = "8d7f8c92bc9973c90d6e040bb7e69288470165ae"
+)
+# END bazel distribution
+
 # BEGIN java dependencies
 load("@rules_jvm_external//:specs.bzl", "maven")
 maven_install(
