@@ -10,15 +10,24 @@ ifeq ($(version),)
 	version := $(gitsha)
 endif
 
+.PHONY: jabba
+jabba:
+	@echo "==> This project uses jabba for selecting a JAVA version"
+	@echo "==> Before running this command, run:"
+	@echo "==> jabba use"
+
+.PHONY: clean
+clean: jabba
+	@echo "==> Cleaning project artifacts and metadata"
+	bazelisk clean
+
 .PHONY: build
-build:
+build: jabba
 	@echo "==> Building $(PKGNAME)"
 	bazelisk build //...
 
-.PHONY: clean
-clean:
-	@echo "==> Cleaning project artifacts and metadata"
-	bazelisk clean
+test: jabba
+	bazelisk test //...
 
 .PHONY: fmt
 fmt:
@@ -34,8 +43,15 @@ fmtcheck:
 vet:
 	@echo "==> Not implemented yet."
 
+.PHONY: git-hooks
+git-hooks:
+	@echo ""
+	@echo "==> Ensuring all git hooks are linked..."
+	find .git/hooks -type l -exec rm {} \;
+	find .githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
+
 .PHONY: setup
-setup:
+setup: git-hooks
 ifeq (,$(wildcard $(FORMATTER)))
 	@echo ""
 	@echo "==> Installing google-java-format..."
@@ -55,10 +71,11 @@ ifeq (, $(shell which bazelisk))
 endif
 endif
 
+ifeq (,$(wildcard ~/.jabba/jabba.sh))
 	@echo ""
-	@echo "==> Ensuring all git hooks are linked..."
-	find .git/hooks -type l -exec rm {} \;
-	find .githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
-
-test:
-	bazelisk test //...
+	@echo "==> Installing jabba..."
+	curl -sL https://github.com/shyiko/jabba/raw/master/install.sh | bash && . ~/.jabba/jabba.sh
+	@echo ""
+	@echo "Don't forget to: source $$JABBA_HOME/jabba.sh"
+	@echo ""
+endif

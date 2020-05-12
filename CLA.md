@@ -80,5 +80,5 @@ Furthermore:
   with the fact that You have signed this Agreement, then You agree to
   inform Mihai Bojin about the problem, without any undue delay.
 
-This software is distributed without any warranty and under the terms of the 
-[license included in the project](./LICENSE).
+This software is distributed without any warranty and under the terms of the
+[Apache 2.0 License](./LICENSE), included with the project.
