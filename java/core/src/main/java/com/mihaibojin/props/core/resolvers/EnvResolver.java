@@ -8,4 +8,9 @@ public class EnvResolver extends ReadOnlyResolver {
   public Optional<String> get(String key) {
     return Optional.ofNullable(System.getenv(key));
   }
+
+  @Override
+  public String defaultId() {
+    return "ENV";
+  }
 }

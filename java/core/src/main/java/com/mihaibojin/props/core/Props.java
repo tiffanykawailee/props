@@ -5,6 +5,7 @@ import static java.util.Objects.nonNull;
 import static java.util.logging.Level.SEVERE;
 
 import com.mihaibojin.props.core.converters.PropTypeConverter;
+import com.mihaibojin.props.core.converters.StringConverter;
 import com.mihaibojin.props.core.resolvers.PropertyFileResolver;
 import com.mihaibojin.props.core.resolvers.Resolver;
 import java.time.Duration;
@@ -133,17 +134,10 @@ public class Props implements AutoCloseable {
    * @return true if the property was updated, or false if it kept its value
    */
   protected <T> boolean update(AbstractProp<T> prop) {
-    final Optional<T> propValue;
-
     // determine if the prop is linked to a specific resolver
     String resolverId = propIdToResolver.get(prop.key());
-    if (nonNull(resolverId)) {
-      propValue = resolveProp(prop, resolverId);
-    } else {
-      // otherwise search all resolvers
-      propValue = resolveProp(prop);
-    }
 
+    final Optional<T> propValue = resolveProp(prop, resolverId);
     if (propValue.isEmpty()) {
       // nothing to update if a value was not found
       return false;
@@ -164,9 +158,14 @@ public class Props implements AutoCloseable {
   }
 
   /** Search all resolvers for a value */
-  <T> Optional<T> resolveProp(AbstractProp<T> prop) {
+  <T> Optional<T> resolveProp(AbstractProp<T> prop, String resolverId) {
     if (!waitForInitialLoad()) {
       return Optional.empty();
+    }
+
+    if (nonNull(resolverId)) {
+      // if the prop is bound to a single resolver, return it on the spot
+      return resolvers.get(resolverId).get(prop.key).map(prop::decode);
     }
 
     for (String id : prioritizedResolvers) {
@@ -183,17 +182,6 @@ public class Props implements AutoCloseable {
     }
 
     return Optional.empty();
-  }
-
-  /** Only attempt a specific resolver */
-  <T> Optional<T> resolveProp(AbstractProp<T> prop, String resolverId) {
-    validateResolver(resolverId);
-
-    if (!waitForInitialLoad()) {
-      return Optional.empty();
-    }
-
-    return resolvers.get(resolverId).get(prop.key).map(prop::decode);
   }
 
   /**
@@ -310,6 +298,12 @@ public class Props implements AutoCloseable {
       return this;
     }
 
+    /** Adds a resolver and identifies it by its {@link Resolver#defaultId()} */
+    public Factory withResolver(Resolver resolver) {
+      resolvers.put(resolver.defaultId(), resolver);
+      return this;
+    }
+
     /**
      * Allows customizing the refresh interval at which auto-update-able {@link
      * com.mihaibojin.props.core.resolvers.Resolver}s are refreshed
@@ -327,14 +321,27 @@ public class Props implements AutoCloseable {
       return this;
     }
 
-    /** Create the {@link Props} object */
+    /**
+     * Creates the {@link Props} object
+     *
+     * @throws IllegalStateException if the method is called without registering any {@link
+     *     Resolver}s
+     */
     public Props build() {
+      if (resolvers.isEmpty()) {
+        throw new IllegalStateException("Cannot initialize Props without any Resolvers");
+      }
       return new Props(resolvers, refreshInterval, shutdownGracePeriod);
     }
   }
 
+  /** Convenience method for building string {@link Prop}s */
+  public Builder<String> prop(String key) {
+    return new Builder<>(key, new StringConverter() {});
+  }
+
   /** Convenience method for building {@link Prop}s */
-  public <T> Builder<T> builder(String key, PropTypeConverter<T> converter) {
+  public <T> Builder<T> prop(String key, PropTypeConverter<T> converter) {
     return new Builder<>(key, converter);
   }
 
@@ -382,7 +389,7 @@ public class Props implements AutoCloseable {
     /**
      * Constructs the {@link Prop}, binds it to the current {@link Props} instance, and returns it
      */
-    public AbstractProp<T> build() {
+    public Prop<T> build() {
       return bind(
           new AbstractProp<>(key, defaultValue, description, isRequired, isSecret) {
             @Override
@@ -396,6 +403,28 @@ public class Props implements AutoCloseable {
             }
           },
           resolverId);
+    }
+
+    /**
+     * Reads the {@link Prop}'s value without binding it to the current {@link Props} instance.
+     *
+     * <p>This is a convenience method that can be used when you want to retrieve a value only once.
+     */
+    public Optional<T> readOnce() {
+      AbstractProp<T> prop =
+          new AbstractProp<>(key, defaultValue, description, isRequired, isSecret) {
+            @Override
+            public T decode(String value) {
+              return converter.decode(value);
+            }
+
+            @Override
+            public String encode(T value) {
+              return converter.encode(value);
+            }
+          };
+
+      return resolveProp(prop, resolverId);
     }
   }
 }

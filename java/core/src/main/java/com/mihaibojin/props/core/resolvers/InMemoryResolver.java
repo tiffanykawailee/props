@@ -27,4 +27,9 @@ public class InMemoryResolver implements Resolver {
   public Set<String> reload() {
     return Set.of();
   }
+
+  @Override
+  public String defaultId() {
+    return "MEMORY";
+  }
 }

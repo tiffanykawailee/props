@@ -56,4 +56,9 @@ public class PropertyFileResolver implements Resolver {
 
     return Set.of();
   }
+
+  @Override
+  public String defaultId() {
+    return ResolverUtils.formatResolverId(location.getFileName().toString());
+  }
 }

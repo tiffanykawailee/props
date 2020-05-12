@@ -1,5 +1,6 @@
 package com.mihaibojin.props.core.resolvers;
 
+import static com.mihaibojin.props.core.resolvers.ResolverUtils.formatResolverId;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
@@ -30,11 +31,6 @@ public class ClasspathPropertyFileResolver implements Resolver {
   }
 
   @Override
-  public boolean isReloadable() {
-    return isReloadable;
-  }
-
-  @Override
   public Optional<String> get(String key) {
     return Optional.ofNullable(store.get(key));
   }
@@ -53,5 +49,15 @@ public class ClasspathPropertyFileResolver implements Resolver {
     }
 
     return Set.of();
+  }
+
+  @Override
+  public boolean isReloadable() {
+    return isReloadable;
+  }
+
+  @Override
+  public String defaultId() {
+    return formatResolverId(location);
   }
 }

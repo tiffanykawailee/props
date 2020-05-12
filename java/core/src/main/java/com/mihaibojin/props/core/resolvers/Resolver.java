@@ -1,5 +1,6 @@
 package com.mihaibojin.props.core.resolvers;
 
+import com.mihaibojin.props.core.Props;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,4 +23,10 @@ public interface Resolver {
   default boolean isReloadable() {
     return true;
   }
+
+  /**
+   * @return a string identifying the resolver, if a custom id was not specified by calling {@link
+   *     Props.Factory#withResolver(String, Resolver)}
+   */
+  String defaultId();
 }

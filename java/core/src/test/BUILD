@@ -9,9 +9,21 @@ load("//java/third_party/junit5:junit5.bzl", "java_junit5_test")
 
 java_junit5_test(
     name = "AllTests",
-    srcs = glob(["**/*Test.java"]),
+    srcs = glob(["**/*.java"]),
     resources = glob(["resources/**"]),
     test_package = "com.mihaibojin",
+    deps = [
+        "//java/core/src/main:props-core",
+        "//java/third_party/hamcrest:hamcrest",
+        "//java/third_party/mockito:mockito",
+    ],
+)
+
+java_junit5_test(
+    name = "Examples",
+    srcs = glob(["**/*.java"]),
+    resources = glob(["resources/**"]),
+    test_package = "examples",
     deps = [
         "//java/core/src/main:props-core",
         "//java/third_party/hamcrest:hamcrest",

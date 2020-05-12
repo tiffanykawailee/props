@@ -84,4 +84,12 @@ public class ResolverUtils {
     // return all deleted, new, and updated keys
     return toDel;
   }
+
+  /**
+   * Helper method that takes a random input string and returns all words uppercased and separated
+   * by a single underscore character
+   */
+  public static String formatResolverId(String location) {
+    return location.toUpperCase().replaceAll("[^A-Z]+", "_");
+  }
 }

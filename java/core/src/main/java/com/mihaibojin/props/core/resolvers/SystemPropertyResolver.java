@@ -8,4 +8,9 @@ public class SystemPropertyResolver extends ReadOnlyResolver {
   public Optional<String> get(String key) {
     return Optional.ofNullable(System.getProperty(key));
   }
+
+  @Override
+  public String defaultId() {
+    return "SYSTEM";
+  }
 }
