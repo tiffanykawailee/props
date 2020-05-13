@@ -32,12 +32,12 @@ test: jabba
 .PHONY: fmt
 fmt:
 	@echo "==> Formatting all the code..."
-	$(shell find . -name \"*.java\" | xargs java -jar $(FORMATTER) --set-exit-if-changed)
+	$(shell find . -name \"*.java\" | grep -v '.ijwb' | xargs java -jar $(FORMATTER) --set-exit-if-changed)
 
 .PHONY: fmtcheck
 fmtcheck:
 	@echo "==> Ensuring all the code was properly formatted..."
-	find . -name "*.java" | xargs java -jar $(FORMATTER) --set-exit-if-changed -n
+	find . -name "*.java" | grep -v '.ijwb' | xargs java -jar $(FORMATTER) --set-exit-if-changed -n
 
 .PHONY: vet
 vet:
