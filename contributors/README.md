@@ -1,9 +1,9 @@
 # Signing the CLA
 
 - Please read the project's [Contributor License Agreement](../CLA.md)
-- Create an account on <https://github.com> if you don't already have one
+- Create an account on <https://github.com/> (if you don't already have one)
 - Open a PR against this repository
-- Create a file named `contributors/[your github userid].md`
+- Create a file named `contributors/cla/[your github user id].md`
 - Include the following contents:
 ```
 [date]
@@ -24,9 +24,12 @@ https://github.com/[your github userid]
 - Replace the bracketed text as follows:
   [date] with today's date (YYYY-MM-DD)
   [your name] with your name
-  [your github userid] with your GitHub userid
+  [your github user id] with your GitHub user id
 
-- You can confirm the CLA's md5 checksum by running the following command(s) 
+- Edit [contributors.bzl](./contributors.bzl) and add your name the the *Contributors List*
+
+
+*NOTE:* You can confirm the CLA's md5 checksum by running the following command(s) 
   in the project's root directory:
 
 ```$

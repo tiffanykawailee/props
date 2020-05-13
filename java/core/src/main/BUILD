@@ -1,5 +1,6 @@
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
 load("@rules_jvm_external//:defs.bzl", "artifact")
+load("//contributors:contributors.bzl", "contributors")
 
 java_library(
     name = "props-core",
@@ -19,7 +20,7 @@ assemble_maven(
     project_url = "https://github.com/MihaiBojin/props",
     scm_url = "https://github.com/MihaiBojin/props.git",
     version_file = "//java/central-sync:VERSION",
-    developers = {"1": ["name=Mihai Bojin", "email=mihai.bojin@gmail.com"]},
+    developers = contributors(),
     license = "apache"
 )
 deploy_maven(
