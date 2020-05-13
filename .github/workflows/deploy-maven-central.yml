@@ -19,8 +19,8 @@ jobs:
       - name: Installing dependencies
         run: make setup
 
-      - name: Generating the VERSION file for versioning the POM
-        run: make generate-pom-version
+      #      - name: Generating the VERSION file for versioning the POM
+      #        run: make generate-pom-version
 
       - name: Retrieving the GPG signing key
         #env:
