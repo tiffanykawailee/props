@@ -69,6 +69,23 @@ public class Props implements AutoCloseable {
   }
 
   /**
+   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions
+   */
+  private static Set<String> safeReload(Entry<String, Resolver> res) {
+    try {
+      return res.getValue().reload();
+    } catch (Throwable t) {
+      log.log(SEVERE, "Unexpected error reloading props from " + res.getKey(), t);
+    }
+    return Set.of();
+  }
+
+  /** Convenience method for configuring {@link Props} registry objects */
+  public static Factory factory() {
+    return new Factory();
+  }
+
+  /**
    * Binds the specified prop to the current {@link Props} registry.
    *
    * <p>If a non-null <code>resolverId</code> is specified, it will link the prop to that resolver.
@@ -233,18 +250,6 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /**
-   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions
-   */
-  private static Set<String> safeReload(Entry<String, Resolver> res) {
-    try {
-      return res.getValue().reload();
-    } catch (Throwable t) {
-      log.log(SEVERE, "Unexpected error reloading props from " + res.getKey(), t);
-    }
-    return Set.of();
-  }
-
   /** Refreshes values from all the registered {@link Resolver}s */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
     Set<? extends AbstractProp<?>> toUpdate =
@@ -279,9 +284,14 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** Convenience method for configuring {@link Props} registry objects */
-  public static Factory factory() {
-    return new Factory();
+  /** Convenience method for building string {@link Prop}s */
+  public Builder<String> prop(String key) {
+    return new Builder<>(key, new StringConverter() {});
+  }
+
+  /** Convenience method for building {@link Prop}s */
+  public <T> Builder<T> prop(String key, PropTypeConverter<T> converter) {
+    return new Builder<>(key, converter);
   }
 
   /** Factory class for building {@link Props} registry classes */
@@ -333,16 +343,6 @@ public class Props implements AutoCloseable {
       }
       return new Props(resolvers, refreshInterval, shutdownGracePeriod);
     }
-  }
-
-  /** Convenience method for building string {@link Prop}s */
-  public Builder<String> prop(String key) {
-    return new Builder<>(key, new StringConverter() {});
-  }
-
-  /** Convenience method for building {@link Prop}s */
-  public <T> Builder<T> prop(String key, PropTypeConverter<T> converter) {
-    return new Builder<>(key, converter);
   }
 
   /** Builder class for creating custom {@link Prop}s from the current {@link Props} registry */

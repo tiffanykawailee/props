@@ -18,9 +18,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 public class SingleResolverExamplesTest {
   private static final String propKey = "prop";
-  private static Path propFile;
-
   @TempDir static File tempDir;
+  private static Path propFile;
 
   @BeforeAll
   static void setUp() {

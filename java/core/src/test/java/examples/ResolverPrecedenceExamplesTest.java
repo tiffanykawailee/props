@@ -16,9 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 public class ResolverPrecedenceExamplesTest {
-  private static Path propFile;
-
   @TempDir static File tempDir;
+  private static Path propFile;
 
   @BeforeAll
   static void setUp() {
