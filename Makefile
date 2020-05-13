@@ -5,11 +5,8 @@ FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 default: build
 
 # Determine the current commit's git hash and identify any version tags
-GITHASH := $(shell git log -n1 --pretty='%h')
+GITHASH := $(shell git log -n1 --pretty='%H')
 VERSION_TAG=$(shell git describe --exact-match --tags "$(GITHASH)" 2>/dev/null)
-ifeq (, $(VERSION_TAG))
-	VERSION_TAG := $(GITHASH)
-endif
 
 .PHONY: clean
 clean: jabba
@@ -19,10 +16,10 @@ clean: jabba
 .PHONY: build
 build: jabba
 	@echo "==> Building $(PKGNAME)"
-	bazelisk build //...
+	bazelisk build //java/core/...
 
 test: jabba
-	bazelisk test //...
+	bazelisk test //java/core/...
 
 .PHONY: fmt
 fmt:
@@ -38,11 +35,21 @@ fmtcheck:
 vet:
 	@echo "==> Not implemented yet."
 
+.PHONY: generate-pom-version
+generate-pom-version:
+ifeq (, $(VERSION_TAG))
+	$(error "Could not find a tag for commit hash: $(GITHASH)")
+endif
+	@echo "$(VERSION_TAG:v%=%)" > java/central-sync/VERSION
+
 .PHONY: assemble-maven
 assemble-maven: jabba
+ifeq (, $(shell cat java/central-sync/VERSION))
+	$(error "Before running this target, make sure to generate a VERSION file with the _generate-pom-version_ target")
+endif
 	@echo ""
-	@echo "==> Assembling JAR artifacts for publishing to Maven Central"
-	bazelisk build //java/core/src/main:assemble-maven
+	@echo "==> Assembling JAR artifacts for publishing to Maven Central..."
+	bazelisk build //java/central-sync:assemble-maven
 
 .PHONY: deploy-maven
 deploy-maven: assemble-maven
@@ -54,7 +61,7 @@ ifeq (, ${DEPLOY_MAVEN_PASSWORD})
 endif
 	@echo ""
 	@echo "==> Deploying JAR artifacts to Maven Central"
-	bazelisk run //java/core/src/main:deploy-maven -- release --gpg
+	bazelisk run //java/central-sync:deploy-maven -- release --gpg
 
 .PHONY: git-hooks
 git-hooks:

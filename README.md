@@ -5,6 +5,7 @@ multiple sources (startup properties, environment, property files, etc.)
 
 While `props` is currently implemented in JAVA, additional languages are planned in the future.
 
+![](https://github.com/MihaiBojin/props/workflows/Deploy%20to%20Maven%20Central/badge.svg)
 
 # Features
 
