@@ -4,17 +4,12 @@ FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 
 default: build
 
-gitsha := $(shell git log -n1 --pretty='%h')
-version=$(shell git describe --exact-match --tags "$(gitsha)" 2>/dev/null)
-ifeq ($(version),)
-	version := $(gitsha)
+# Determine the current commit's git hash and identify any version tags
+GITHASH := $(shell git log -n1 --pretty='%h')
+VERSION_TAG=$(shell git describe --exact-match --tags "$(GITHASH)" 2>/dev/null)
+ifeq (, $(VERSION_TAG))
+	VERSION_TAG := $(GITHASH)
 endif
-
-.PHONY: jabba
-jabba:
-	@echo "==> This project uses jabba for selecting a JAVA version"
-	@echo "==> Before running this command, run:"
-	@echo "==> jabba use"
 
 .PHONY: clean
 clean: jabba
@@ -42,6 +37,24 @@ fmtcheck:
 .PHONY: vet
 vet:
 	@echo "==> Not implemented yet."
+
+.PHONY: assemble-maven
+assemble-maven: jabba
+	@echo ""
+	@echo "==> Assembling JAR artifacts for publishing to Maven Central"
+	bazelisk build //java/core/src/main:assemble-maven
+
+.PHONY: deploy-maven
+deploy-maven: assemble-maven
+ifeq (, ${DEPLOY_MAVEN_USERNAME})
+	$(error "Cannot assemble a JAR without a value for DEPLOY_MAVEN_USERNAME")
+endif
+ifeq (, ${DEPLOY_MAVEN_PASSWORD})
+	$(error "Cannot assemble a JAR without a value for DEPLOY_MAVEN_PASSWORD")
+endif
+	@echo ""
+	@echo "==> Deploying JAR artifacts to Maven Central"
+	bazelisk run //java/core/src/main:deploy-maven -- release --gpg
 
 .PHONY: git-hooks
 git-hooks:
@@ -79,3 +92,10 @@ ifeq (,$(wildcard ~/.jabba/jabba.sh))
 	@echo "Don't forget to: source $$JABBA_HOME/jabba.sh"
 	@echo ""
 endif
+
+.PHONY: jabba
+jabba:
+	@echo "==> This project uses jabba for selecting a JAVA version"
+	@echo "==> Before running this command, run:"
+	@echo "==> jabba use"
+
