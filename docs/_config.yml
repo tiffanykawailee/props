@@ -1,0 +1,21 @@
+title: Props
+description: >-
+  Multi-layered properties and secrets management library, for JAVA.
+url: "https://props.mihaibojin.com"
+markdown: kramdown
+kramdown:
+  parse_block_html: true
+theme: jekyll-theme-leap-day
+show_downloads: true
+google_analytics: UA-1713578-17
+exclude:
+  - Makefile
+  - .gitignore
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+github: [metadata]
