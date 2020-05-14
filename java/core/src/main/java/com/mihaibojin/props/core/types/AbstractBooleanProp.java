@@ -17,8 +17,13 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.BooleanConverter;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractBooleanProp extends AbstractProp<Boolean>
     implements BooleanConverter {
   protected AbstractBooleanProp(

@@ -17,8 +17,13 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.DoubleConverter;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractDoubleProp extends AbstractProp<Double> implements DoubleConverter {
   protected AbstractDoubleProp(
       String key, Double defaultValue, String description, boolean isRequired, boolean isSecret) {

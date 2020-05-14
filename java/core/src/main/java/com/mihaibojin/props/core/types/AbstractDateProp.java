@@ -17,9 +17,14 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.DateConverter;
 import java.util.Date;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractDateProp extends AbstractProp<Date> implements DateConverter {
   protected AbstractDateProp(
       String key, Date defaultValue, String description, boolean isRequired, boolean isSecret) {

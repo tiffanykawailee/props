@@ -17,8 +17,13 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.FloatConverter;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractFloatProp extends AbstractProp<Float> implements FloatConverter {
   protected AbstractFloatProp(
       String key, Float defaultValue, String description, boolean isRequired, boolean isSecret) {

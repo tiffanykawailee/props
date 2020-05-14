@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.mihaibojin.props.core.types;
+package com.mihaibojin.props.core.converters;
 
-import com.mihaibojin.props.core.AbstractProp;
-import com.mihaibojin.props.core.Prop;
-import com.mihaibojin.props.core.converters.LongConverter;
+import static com.mihaibojin.props.core.converters.ConverterUtils.safeParseDuration;
 
-/**
- * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
- * type.
- */
-public abstract class AbstractLongProp extends AbstractProp<Long> implements LongConverter {
-  protected AbstractLongProp(
-      String key, Long defaultValue, String description, boolean isRequired, boolean isSecret) {
-    super(key, defaultValue, description, isRequired, isSecret);
+import java.time.Duration;
+
+/** Converter that casts the inputted {@link String} to an {@link Duration} value */
+public interface DurationConverter extends PropTypeConverter<Duration> {
+  @Override
+  default Duration decode(String value) {
+    return safeParseDuration(value);
   }
 }

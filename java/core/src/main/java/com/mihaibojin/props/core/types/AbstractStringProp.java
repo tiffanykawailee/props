@@ -17,8 +17,13 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.StringConverter;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractStringProp extends AbstractProp<String> implements StringConverter {
   protected AbstractStringProp(
       String key, String defaultValue, String description, boolean isRequired, boolean isSecret) {

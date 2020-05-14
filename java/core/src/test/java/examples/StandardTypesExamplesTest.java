@@ -25,18 +25,22 @@ import com.mihaibojin.props.core.converters.BooleanConverter;
 import com.mihaibojin.props.core.converters.DateConverter;
 import com.mihaibojin.props.core.converters.DoubleConverter;
 import com.mihaibojin.props.core.converters.DoubleListConverter;
+import com.mihaibojin.props.core.converters.DurationConverter;
 import com.mihaibojin.props.core.converters.FloatConverter;
 import com.mihaibojin.props.core.converters.InstantConverter;
 import com.mihaibojin.props.core.converters.IntegerConverter;
 import com.mihaibojin.props.core.converters.IntegerListConverter;
 import com.mihaibojin.props.core.converters.LongConverter;
 import com.mihaibojin.props.core.converters.LongListConverter;
+import com.mihaibojin.props.core.converters.NumericDurationConverter;
 import com.mihaibojin.props.core.converters.StringConverter;
 import com.mihaibojin.props.core.converters.StringListConverter;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,8 +55,7 @@ public class StandardTypesExamplesTest {
     // initialize the Props registry
     props =
         Props.factory()
-            .withResolver(
-                new ClasspathPropertyFileResolver("/examples/provided_prop_types.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/examples/standard_types.properties"))
             .build();
   }
 
@@ -140,6 +143,53 @@ public class StandardTypesExamplesTest {
         "Expected to read and correctly cast the property",
         maybeValue.get(),
         equalTo(expectedInstant));
+  }
+
+  @Test
+  void readDuration() {
+    // initialize a prop and read its value once
+    Optional<Duration> maybeValue = props.prop("a.duration", new DurationConverter() {}).readOnce();
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        maybeValue.get(),
+        equalTo(Duration.ofDays(1)));
+  }
+
+  @Test
+  void readNumericDurationSeconds() {
+    // initialize a prop and read its value once
+    Optional<Duration> maybeValue =
+        props.prop("a.numeric.duration.seconds", new NumericDurationConverter() {}).readOnce();
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        maybeValue.get(),
+        equalTo(Duration.ofSeconds(1)));
+  }
+
+  @Test
+  void readNumericDurationDays() {
+    // initialize a prop and read its value once
+    Optional<Duration> maybeValue =
+        props
+            .prop(
+                "a.numeric.duration.days",
+                new NumericDurationConverter() {
+                  @Override
+                  public ChronoUnit unit() {
+                    return ChronoUnit.DAYS;
+                  }
+                })
+            .readOnce();
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        maybeValue.get(),
+        equalTo(Duration.ofDays(1)));
   }
 
   @Test

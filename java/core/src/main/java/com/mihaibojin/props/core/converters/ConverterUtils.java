@@ -20,9 +20,11 @@ import static java.util.logging.Level.SEVERE;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -51,6 +53,38 @@ class ConverterUtils {
   }
 
   /**
+   * Attempts to parse a {@link String} to an {@link ChronoUnit} and returns <code>null</code> if it
+   * cannot.
+   *
+   * <p>This methods logs a {@link java.util.logging.Level#SEVERE} event instead of throwing {@link
+   * IllegalArgumentException}s or {@link NullPointerException}s.
+   */
+  static ChronoUnit safeParseChronoUnit(String value) {
+    try {
+      return ChronoUnit.valueOf(value);
+    } catch (IllegalArgumentException | NullPointerException e) {
+      log.log(SEVERE, "Could not parse " + value + " as a ChronoUnit", e);
+      return null;
+    }
+  }
+
+  /**
+   * Attempts to parse a {@link String} to an {@link Duration} and returns <code>null</code> if it
+   * cannot.
+   *
+   * <p>This methods logs a {@link java.util.logging.Level#SEVERE} event instead of throwing {@link
+   * DateTimeParseException}s.
+   */
+  static Duration safeParseDuration(String value) {
+    try {
+      return Duration.parse(value);
+    } catch (DateTimeParseException e) {
+      log.log(SEVERE, "Could not parse " + value + " as a valid Duration", e);
+      return null;
+    }
+  }
+
+  /**
    * Attempts to parse a {@link String} to an {@link Instant} and returns <code>null</code> if it
    * cannot.
    *
@@ -61,7 +95,7 @@ class ConverterUtils {
     try {
       return OffsetDateTime.parse(value).toInstant();
     } catch (DateTimeParseException e) {
-      log.log(SEVERE, "Could not parse " + value + " as a valid date/time", e);
+      log.log(SEVERE, "Could not parse " + value + " as a valid DateTime", e);
       return null;
     }
   }

@@ -34,8 +34,7 @@ public class PropMetadataExamplesTest {
     // initialize the Props registry
     props =
         Props.factory()
-            .withResolver(
-                new ClasspathPropertyFileResolver("/examples/provided_prop_types.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/examples/standard_types.properties"))
             .build();
   }
 

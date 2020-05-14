@@ -17,9 +17,14 @@
 package com.mihaibojin.props.core.types;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.converters.FloatListConverter;
 import java.util.List;
 
+/**
+ * Helper class meant to act as a base class when definining a {@link Prop} with the underlying
+ * type.
+ */
 public abstract class AbstractFloatListProp extends AbstractProp<List<Float>>
     implements FloatListConverter {
   protected AbstractFloatListProp(
