@@ -2,8 +2,6 @@ name: Deploy to Maven Central
 
 on:
   push:
-    branches:
-      - master
     tags:
       - v0.*.*
       - v1.*.*
@@ -19,10 +17,10 @@ jobs:
       - name: Installing dependencies
         run: make setup
 
-      #      - name: Generating the VERSION file for versioning the POM
-      #        run: make generate-pom-version
+      - name: Generating the VERSION file for versioning the POM
+        run: make generate-pom-version
 
-      - name: Retrieving the GPG signing key
+      - name: Importing the GPG signing key
         env:
           GPG_KEY: ${{ secrets.GPG_KEY }}
         run: |
@@ -36,3 +34,8 @@ jobs:
           DEPLOY_MAVEN_PASSWORD: ${{ secrets.DEPLOY_MAVEN_PASSWORD }}
         run: |
           make deploy-maven
+
+      - name: Removing the GPG signing key
+        run: |
+          set -eu
+          [ -d "$HOME/.gnupg" ] && rm -rf "$HOME/.gnupg"
