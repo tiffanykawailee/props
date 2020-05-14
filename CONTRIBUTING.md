@@ -53,6 +53,28 @@ To sign the [Contributor License Agreement](./CLA.md) please follow the
 **Reviewers will ensure that all requirements are met before merging PRs.**
 
 
+# Releasing
+
+The release process is automated using [GitHub Actions](/.github/workflows/deploy-maven-central.yml).
+
+To stage a release:
+
+A. If you are a collaborator to the [props repo](https://github.com/MihaiBojin/props/):
+- create a [lightweight tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging#_lightweight_tags)
+  `git tag vx.y.z`
+- and ask [me](https://github.com/MihaiBojin) to release it to Maven Central 
+  via [Sonatype](https://oss.sonatype.org/#stagingRepositories)
+
+B. Otherwise, [create a new issue](https://github.com/MihaiBojin/props/issues/new) and specify the
+git commit hash you would like to release and a version number.
+
+We follow [semantic versioning](https://semver.org/) so please bear that in mind when you propose
+a new MAJOR.MINOR.PATCH release version:
+- MAJOR version when you make incompatible API changes,
+- MINOR version when you add functionality in a backwards compatible manner, and
+- PATCH version when you make backwards compatible bug fixes.
+
+
 # License
 
 Copyright 2020 Mihai Bojin
