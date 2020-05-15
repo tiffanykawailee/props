@@ -16,16 +16,41 @@
 
 package com.mihaibojin.props.core;
 
-public interface Prop<T> {
+import com.mihaibojin.props.core.converters.PropTypeConverter;
+
+public interface Prop<T> extends PropTypeConverter<T> {
+
+  /** Identifies the {@link Prop} */
   String key();
 
+  /**
+   * @return a default value of type <code>T</code>, or null of the {@link Prop} does not have a
+   *     default value
+   */
   T defaultValue();
 
+  /** @return a short description explaining what this prop is used for; developer-friendly */
   String description();
 
+  /**
+   * @return <code>true</code> if this {@link Prop} requires a value (validation will fail if one is
+   *     not specified)
+   */
   boolean isRequired();
 
+  /**
+   * @return <code>true</code> if this {@link Prop} represents a secret and its value should be
+   *     redacted when printed
+   */
   boolean isSecret();
 
+  /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
   T value();
+
+  /**
+   * This hook is called every time the {@link Prop}'s value is updated
+   *
+   * <p>NOTE: This implementation is considered EXPERIMENTAL and may change in a future version !
+   */
+  default void onUpdate(T value) {};
 }

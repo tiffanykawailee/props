@@ -16,17 +16,23 @@
 
 package com.mihaibojin.props.core.resolvers;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** Useful for tests, when the implementation requires overriding values. */
 public class InMemoryResolver implements Resolver {
-  private final Map<String, String> store = new HashMap<>();
+  private final Map<String, String> store = new ConcurrentHashMap<>();
+  private final Set<String> updatedKeys = new HashSet<>();
 
   public void set(String key, String value) {
     store.put(key, value);
+
+    synchronized (this) {
+      updatedKeys.add(key);
+    }
   }
 
   @Override
@@ -36,12 +42,20 @@ public class InMemoryResolver implements Resolver {
 
   @Override
   public boolean isReloadable() {
-    return false;
+    return true;
   }
 
   @Override
   public Set<String> reload() {
-    return Set.of();
+    synchronized (this) {
+      try {
+        // returns the keys which were updated since the last reload
+        return new HashSet<>(updatedKeys);
+      } finally {
+        // then clears the set
+        updatedKeys.clear();
+      }
+    }
   }
 
   @Override

@@ -48,7 +48,7 @@ public class Props implements AutoCloseable {
   private static final Logger log = Logger.getLogger(PropertyFileResolver.class.getName());
   private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   // TODO(mihaibojin): boundProps is read-heavy, find a better data structure
-  private final Map<String, AbstractProp<?>> boundProps = new ConcurrentHashMap<>();
+  private final Map<String, Prop<?>> boundProps = new ConcurrentHashMap<>();
   private final Map<String, String> propIdToResolver = new ConcurrentHashMap<>();
   private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -113,12 +113,12 @@ public class Props implements AutoCloseable {
    * @throws IllegalArgumentException if the specified <code>resolverId</code> is not know to the
    *     registry.
    */
-  public <T, R extends AbstractProp<T>> R bind(R prop, String resolverId) {
-    AbstractProp<?> oldProp = boundProps.putIfAbsent(prop.key, prop);
+  public <T, R extends Prop<T>> R bind(R prop, String resolverId) {
+    Prop<?> oldProp = boundProps.putIfAbsent(prop.key(), prop);
     if (nonNull(oldProp) && oldProp != prop) {
       throw new IllegalArgumentException(
           "Prop with key "
-              + prop.key
+              + prop.key()
               + " was already registered via "
               + oldProp.getClass().getSimpleName());
     }
@@ -138,9 +138,9 @@ public class Props implements AutoCloseable {
   /**
    * Convenience method for users who need to bind {@link Prop}s manually.
    *
-   * @see #bind(AbstractProp, String)
+   * @see #bind(Prop, String)
    */
-  public <T, R extends AbstractProp<T>> R bind(R prop) {
+  public <T, R extends Prop<T>> R bind(R prop) {
     return bind(prop, null);
   }
 
@@ -166,7 +166,7 @@ public class Props implements AutoCloseable {
    *
    * @return true if the property was updated, or false if it kept its value
    */
-  protected <T> boolean update(AbstractProp<T> prop) {
+  protected <T> boolean update(Prop<T> prop) {
     // determine if the prop is linked to a specific resolver
     String resolverId = propIdToResolver.get(prop.key());
 
@@ -185,20 +185,20 @@ public class Props implements AutoCloseable {
     }
 
     // update the current value, if necessary
-    prop.setValue(currentValue);
+    ((AbstractProp<T>) prop).setValue(currentValue);
 
     return true;
   }
 
   /** Search all resolvers for a value */
-  <T> Optional<T> resolveProp(AbstractProp<T> prop, String resolverId) {
+  <T> Optional<T> resolveProp(Prop<T> prop, String resolverId) {
     if (!waitForInitialLoad()) {
       return Optional.empty();
     }
 
     if (nonNull(resolverId)) {
       // if the prop is bound to a single resolver, return it on the spot
-      return resolvers.get(resolverId).get(prop.key).map(prop::decode);
+      return resolvers.get(resolverId).get(prop.key()).map(prop::decode);
     }
 
     for (String id : prioritizedResolvers) {
@@ -235,7 +235,7 @@ public class Props implements AutoCloseable {
    * <p>The map can be iterated over in and will return {@link Resolver}s order by priority,
    * lowest-to-highest.
    */
-  public <T> Map<String, T> resolvePropLayers(AbstractProp<T> prop) {
+  public <T> Map<String, T> resolvePropLayers(Prop<T> prop) {
     // read all the values from the registry
     Map<String, T> layers = new LinkedHashMap<>();
 
@@ -244,7 +244,6 @@ public class Props implements AutoCloseable {
       Optional<String> value = entry.getValue().get(prop.key());
       if (value.isPresent()) {
         T resolved = prop.decode(value.get());
-        prop.validateBeforeSet(resolved);
         layers.put(entry.getKey(), resolved);
       }
     }
@@ -268,7 +267,7 @@ public class Props implements AutoCloseable {
 
   /** Refreshes values from all the registered {@link Resolver}s */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
-    Set<? extends AbstractProp<?>> toUpdate =
+    Set<? extends Prop<?>> toUpdate =
         resolvers
             .entrySet()
             .parallelStream()

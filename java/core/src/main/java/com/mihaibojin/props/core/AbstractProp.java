@@ -19,9 +19,7 @@ package com.mihaibojin.props.core;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-import com.mihaibojin.props.core.converters.PropTypeConverter;
-
-public abstract class AbstractProp<T> implements Prop<T>, PropTypeConverter<T> {
+public abstract class AbstractProp<T> implements Prop<T> {
   public final String key;
   private final T defaultValue;
   private final String description;
@@ -61,9 +59,14 @@ public abstract class AbstractProp<T> implements Prop<T>, PropTypeConverter<T> {
 
   /** Update this property's value */
   void setValue(T currentValue) {
+    // ensure the value is validated before it is set
+    validateBeforeSet(currentValue);
+
     synchronized (this) {
       this.currentValue = currentValue;
     }
+
+    onUpdate(this.currentValue);
   }
 
   /** @return the current value */
