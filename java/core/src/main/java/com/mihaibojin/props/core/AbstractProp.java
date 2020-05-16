@@ -100,16 +100,21 @@ public abstract class AbstractProp<T> implements Prop<T> {
     return isSecret;
   }
 
+  /** Helper method for redacting secret values */
+  protected String redact(T value) {
+    return "<redacted>";
+  }
+
   @Override
   public String toString() {
     if (isNull(currentValue)) {
       return format("Prop{%s=null}", key);
     }
 
-    if (isSecret) {
-      return format("Prop{%s=(%s)<redacted>}", key, currentValue.getClass().getSimpleName());
-    }
-
-    return format("Prop{%s=(%s)%s}", key, currentValue.getClass().getSimpleName(), currentValue);
+    return format(
+        "Prop{%s=(%s)%s}",
+        key,
+        currentValue.getClass().getSimpleName(),
+        isSecret() ? redact(currentValue) : currentValue);
   }
 }

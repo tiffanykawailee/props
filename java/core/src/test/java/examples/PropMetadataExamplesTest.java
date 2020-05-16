@@ -18,12 +18,14 @@ package examples;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.StringContains.containsString;
 
-import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.Props;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
+import com.mihaibojin.props.core.types.AbstractStringProp;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class PropMetadataExamplesTest {
@@ -34,19 +36,53 @@ public class PropMetadataExamplesTest {
     // initialize the Props registry
     props =
         Props.factory()
-            .withResolver(new ClasspathPropertyFileResolver("/examples/standard_types.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/examples/prop_metadata.properties"))
             .build();
   }
 
-  // TODO(mihaibojin): prop default value, secret props (toString)
+  @Test
+  void requiredPropMustHaveADefaultIfItDoesNotHaveAValue() {
+    Assertions.assertThrows(
+        IllegalStateException.class, () -> props.bind(new RequiredProp("undefined.prop", null)));
+  }
+
+  private static class RequiredProp extends AbstractStringProp {
+    RequiredProp(String key, String defaultValue) {
+      super(key, defaultValue, null, true, false);
+    }
+  }
 
   @Test
-  @Disabled
-  void readTypes() {
-    // initialize a prop
-    Prop<String> aProp = props.prop("a.TBD").build();
+  void requiredPropReturnsTheDefault() {
+    // bind a prop for which we do not define a value, but define a default
+    RequiredProp aProp = props.bind(new RequiredProp("undefined.prop", "DEFAULT"));
 
-    // assert that the value is retrieved
-    assertThat("Expected to read and correctly cast the property", aProp.value(), equalTo("TBD"));
+    assertThat("Expecting the default value to be returned", aProp.value(), equalTo("DEFAULT"));
+  }
+
+  @Test
+  void secretPropDoesNotPrintItsValue() {
+    // bind a prop for which we do not define a value, but define a default
+    SecretProp aProp = props.bind(new SecretProp("secret.prop"));
+
+    assertThat(
+        "Expecting the actual value to not be printed",
+        aProp.toString(),
+        not(containsString("BIG-SECRET")));
+    assertThat(
+        "Expecting a redacted value",
+        aProp.toString(),
+        containsString(aProp.redact(aProp.value())));
+  }
+
+  private static class SecretProp extends AbstractStringProp {
+    SecretProp(String key) {
+      super(key, null, null, true, true);
+    }
+
+    @Override
+    public String redact(String value) {
+      return super.redact(value);
+    }
   }
 }

@@ -130,7 +130,7 @@ public class Props implements AutoCloseable {
     }
 
     // TODO(mihaibojin): lazy load, block on get
-    update(prop);
+    update(prop, true);
 
     return prop;
   }
@@ -166,21 +166,14 @@ public class Props implements AutoCloseable {
    *
    * @return true if the property was updated, or false if it kept its value
    */
-  protected <T> boolean update(Prop<T> prop) {
+  protected <T> boolean update(Prop<T> prop, boolean forceUpdate) {
     // determine if the prop is linked to a specific resolver
     String resolverId = propIdToResolver.get(prop.key());
 
-    final Optional<T> propValue = resolveProp(prop, resolverId);
-    if (propValue.isEmpty()) {
-      // nothing to update if a value was not found
-      return false;
-    }
-
-    // retrieve the prop's current value
-    T currentValue = propValue.get();
+    final T currentValue = resolveProp(prop, resolverId).orElse(prop.defaultValue());
 
     // determine if the actual value has changed, return otherwise
-    if (Objects.equals(prop.value(), currentValue)) {
+    if (!forceUpdate && Objects.equals(prop.value(), currentValue)) {
       return false;
     }
 
@@ -280,7 +273,7 @@ public class Props implements AutoCloseable {
 
     // TODO(mihaibojin): in the future, this will be replace with a better mechanism that keeps
     // track of which resolver owns each prop
-    toUpdate.forEach(this::update);
+    toUpdate.forEach(prop -> update(prop, false));
   }
 
   /**
