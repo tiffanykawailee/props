@@ -187,7 +187,7 @@ public class ExtendedTypesExamplesTest {
 
     // initialize a Props registry which updates its values every minute
     Props props =
-        Props.factory().withResolver(resolver).refreshInterval(Duration.ofSeconds(1)).build();
+        Props.factory().withResolver(resolver).refreshInterval(Duration.ofMillis(100)).build();
 
     var aProp = props.bind(spy(new SimpleProp("a.value")));
 

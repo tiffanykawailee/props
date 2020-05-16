@@ -81,7 +81,10 @@ public class Props implements AutoCloseable {
     // and schedule the update-able ones to run periodically
     // TODO: this can be risky if the Default ForkJoinPool is busy; refactor to use own executor
     executor.scheduleAtFixedRate(
-        () -> refreshResolvers(this.resolvers), 0, refreshInterval.toSeconds(), TimeUnit.SECONDS);
+        () -> refreshResolvers(this.resolvers),
+        0,
+        refreshInterval.toMillis(),
+        TimeUnit.MILLISECONDS);
   }
 
   /**
