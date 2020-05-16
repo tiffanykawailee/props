@@ -19,8 +19,6 @@ package examples;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 import com.mihaibojin.props.core.AbstractProp;
 import com.mihaibojin.props.core.Props;
@@ -34,6 +32,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -191,15 +190,24 @@ public class ExtendedTypesExamplesTest {
         Props.factory().withResolver(resolver).refreshInterval(Duration.ofSeconds(1)).build();
 
     var aProp = props.bind(spy(new SimpleProp("a.value")));
-    verify(aProp, timeout(2_000)).onUpdate("one");
 
-    assertThat("First, check that the value matches", aProp.value(), equalTo("one"));
+    // then update the value
+    String updatedValue = "two";
+    resolver.set("a.value", updatedValue);
 
-    // then update the value and wait for the update event to be triggered
-    resolver.set("a.value", "two");
-    verify(aProp, timeout(2_000)).onUpdate("two");
+    // and wait until the Prop's value is updated
+    Assertions.assertTimeout(
+        Duration.ofSeconds(5),
+        () -> {
+          while (Objects.equals(aProp.value(), "one")) {
+            Thread.sleep(100);
+          }
+        });
 
-    assertThat("Finally, check that the value was updated", aProp.value(), equalTo("two"));
+    assertThat(
+        "Finally, check that the value was correctly updated",
+        aProp.value(),
+        equalTo(updatedValue));
   }
 
   /** Customer prop class that encodes/decodes values in base64 */

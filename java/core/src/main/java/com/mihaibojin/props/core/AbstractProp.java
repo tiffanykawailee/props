@@ -65,8 +65,6 @@ public abstract class AbstractProp<T> implements Prop<T> {
     synchronized (this) {
       this.currentValue = currentValue;
     }
-
-    onUpdate(this.currentValue);
   }
 
   /** @return the current value */

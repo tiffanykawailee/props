@@ -46,11 +46,4 @@ public interface Prop<T> extends PropTypeConverter<T> {
 
   /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
   T value();
-
-  /**
-   * This hook is called every time the {@link Prop}'s value is updated
-   *
-   * <p>NOTE: This implementation is considered EXPERIMENTAL and may change in a future version !
-   */
-  default void onUpdate(T value) {};
 }
