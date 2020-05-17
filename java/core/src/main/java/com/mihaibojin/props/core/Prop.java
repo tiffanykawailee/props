@@ -44,6 +44,7 @@ public interface Prop<T> extends PropTypeConverter<T> {
    */
   boolean isSecret();
 
+  // TODO(mihaibojin): Change to return Optional<T>
   /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
   T value();
 }
