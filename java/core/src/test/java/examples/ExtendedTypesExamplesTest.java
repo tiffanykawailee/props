@@ -26,8 +26,10 @@ import com.mihaibojin.props.core.converters.PropTypeConverter;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
 import com.mihaibojin.props.core.resolvers.InMemoryResolver;
 import com.mihaibojin.props.core.types.AbstractNumericDurationProp;
+import com.mihaibojin.props.core.types.AbstractPathProp;
 import com.mihaibojin.props.core.types.AbstractStringProp;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -224,5 +226,54 @@ public class ExtendedTypesExamplesTest {
       // values
       return super.decode(value);
     }
+  }
+
+  @Test
+  void pathProp() {
+    // initialize a prop
+    var aProp = props.bind(new PathProp("a.path.prop", false));
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        aProp.value(),
+        equalTo(Path.of("/tmp")));
+  }
+
+  /** Custom prop class that reads a numeric value in days */
+  private static class PathProp extends AbstractPathProp {
+    private final boolean expandHomeDir;
+
+    protected PathProp(String key, boolean expandHomeDir) {
+      super(key, null, null, false, false);
+      this.expandHomeDir = expandHomeDir;
+    }
+
+    @Override
+    public boolean expandUserHomeDir() {
+      return expandHomeDir;
+    }
+  }
+
+  @Test
+  void pathPropHomeDir() {
+    // initialize a prop
+    var aProp = props.bind(new PathProp("a.path.homedir", true));
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        aProp.value(),
+        equalTo(Path.of(System.getProperty("user.home"))));
+  }
+
+  @Test
+  void pathPropHomeDirNotExpanded() {
+    // initialize a prop
+    var aProp = props.bind(new PathProp("a.path.homedir", false));
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property", aProp.value(), equalTo(Path.of("~/")));
   }
 }

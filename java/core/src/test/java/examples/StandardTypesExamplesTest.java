@@ -33,9 +33,11 @@ import com.mihaibojin.props.core.converters.IntegerListConverter;
 import com.mihaibojin.props.core.converters.LongConverter;
 import com.mihaibojin.props.core.converters.LongListConverter;
 import com.mihaibojin.props.core.converters.NumericDurationConverter;
+import com.mihaibojin.props.core.converters.PathConverter;
 import com.mihaibojin.props.core.converters.StringConverter;
 import com.mihaibojin.props.core.converters.StringListConverter;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -242,5 +244,17 @@ public class StandardTypesExamplesTest {
         "Expected to read and correctly cast the property",
         maybeValue.get(),
         hasItems(equalTo("one"), equalTo("two"), equalTo("three")));
+  }
+
+  @Test
+  void readPath() {
+    // initialize a prop and read its value once
+    Optional<Path> maybeValue = props.prop("a.path", new PathConverter() {}).readOnce();
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property",
+        maybeValue.get(),
+        equalTo(Path.of("/tmp")));
   }
 }

@@ -23,6 +23,9 @@ public interface Prop<T> extends PropTypeConverter<T> {
   /** Identifies the {@link Prop} */
   String key();
 
+  /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
+  T value();
+
   /**
    * @return a default value of type <code>T</code>, or null of the {@link Prop} does not have a
    *     default value
@@ -43,8 +46,4 @@ public interface Prop<T> extends PropTypeConverter<T> {
    *     redacted when printed
    */
   boolean isSecret();
-
-  // TODO(mihaibojin): Change to return Optional<T>
-  /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
-  T value();
 }
