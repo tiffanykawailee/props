@@ -19,6 +19,8 @@ package com.mihaibojin.props.core;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
+import java.util.Optional;
+
 public abstract class AbstractProp<T> implements Prop<T> {
   public final String key;
   private final T defaultValue;
@@ -32,17 +34,14 @@ public abstract class AbstractProp<T> implements Prop<T> {
   protected AbstractProp(
       String key, T defaultValue, String description, boolean isRequired, boolean isSecret) {
     this.key = key;
+    this.defaultValue = defaultValue;
     if (isNull(key)) {
       throw new IllegalStateException("The prop's key cannot be null");
     }
 
-    this.defaultValue = defaultValue;
     this.description = description;
     this.isRequired = isRequired;
     this.isSecret = isSecret;
-
-    // pre-initialize the prop to its default value
-    currentValue = defaultValue;
   }
 
   /**
@@ -58,29 +57,32 @@ public abstract class AbstractProp<T> implements Prop<T> {
   }
 
   /** Update this property's value */
-  void setValue(T currentValue) {
+  void setValue(T updateValue) {
+    // choose the updated value, the default value (if specified), or null, in order
+    T val = Optional.ofNullable(updateValue).orElse(defaultValue);
+
     // ensure the value is validated before it is set
-    validateBeforeSet(currentValue);
+    validateBeforeSet(val);
 
     synchronized (this) {
-      this.currentValue = currentValue;
+      currentValue = val;
     }
   }
 
-  /** @return the current value */
+  /**
+   * This method will return an empty <code>Optional</code> if called on a {@link Prop} which was
+   * not bound to a {@link Props} registry.
+   *
+   * @return an {@link Optional} representing the current value
+   */
   @Override
-  public T value() {
-    return currentValue;
+  public Optional<T> value() {
+    return Optional.ofNullable(currentValue);
   }
 
   @Override
   public String key() {
     return key;
-  }
-
-  @Override
-  public T defaultValue() {
-    return defaultValue;
   }
 
   @Override

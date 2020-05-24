@@ -38,7 +38,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.prop("prop.id", new IntegerConverter() {}).build().value();
+    Integer aValue = props.prop("prop.id", new IntegerConverter() {}).build().value().get();
 
     // ASSERT
     assertThat(aValue, equalTo(1));
@@ -56,7 +56,7 @@ public class PropsTest {
             .build();
 
     // ACT
-    Integer aValue = props.prop("prop.id", new IntegerConverter() {}).build().value();
+    Integer aValue = props.prop("prop.id", new IntegerConverter() {}).build().value().get();
 
     // ASSERT
     assertThat(aValue, equalTo(2));
@@ -75,7 +75,7 @@ public class PropsTest {
 
     // ACT
     Integer aValue =
-        props.prop("prop.id", new IntegerConverter() {}).resolver("CONFIG1").build().value();
+        props.prop("prop.id", new IntegerConverter() {}).resolver("CONFIG1").build().value().get();
 
     // ASSERT
     assertThat(aValue, equalTo(1));

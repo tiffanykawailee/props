@@ -133,7 +133,7 @@ public class Props implements AutoCloseable {
     }
 
     // TODO(mihaibojin): lazy load, block on get
-    update(prop, true);
+    update(prop);
 
     return prop;
   }
@@ -169,19 +169,30 @@ public class Props implements AutoCloseable {
    *
    * @return true if the property was updated, or false if it kept its value
    */
-  protected <T> boolean update(Prop<T> prop, boolean forceUpdate) {
+  protected <T> boolean update(Prop<T> prop) {
+    // retrieve the Prop's current value
+    Optional<T> currentValue = prop.value();
+
     // determine if the prop is linked to a specific resolver
     String resolverId = propIdToResolver.get(prop.key());
+    // resolve the Props' updated value
+    Optional<T> updatedValue = resolveProp(prop, resolverId);
 
-    final T currentValue = resolveProp(prop, resolverId).orElse(prop.defaultValue());
+    boolean hasChanged = !Objects.equals(currentValue, updatedValue);
+    boolean isRequiredButEmpty = prop.isRequired() && updatedValue.isEmpty();
 
-    // determine if the actual value has changed, return otherwise
-    if (!forceUpdate && Objects.equals(prop.value(), currentValue)) {
+    // if the value hasn't changed
+    // and we are not dealing with a required prop which has no value
+    if (!hasChanged && !isRequiredButEmpty) {
+      // we can stop here, since there are no updates
       return false;
     }
 
-    // update the current value, if necessary
-    ((AbstractProp<T>) prop).setValue(currentValue);
+    // else,
+    // update the current value, or set to null if not resolved
+    // in the case of required props without a value, this call will trigger a validation error at
+    // when the Prop is bound
+    ((AbstractProp<T>) prop).setValue(updatedValue.orElse(null));
 
     return true;
   }
@@ -276,7 +287,7 @@ public class Props implements AutoCloseable {
 
     // TODO(mihaibojin): in the future, this will be replace with a better mechanism that keeps
     // track of which resolver owns each prop
-    toUpdate.forEach(prop -> update(prop, false));
+    toUpdate.forEach(this::update);
   }
 
   /**

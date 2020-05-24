@@ -17,6 +17,7 @@
 package com.mihaibojin.props.core;
 
 import com.mihaibojin.props.core.converters.PropTypeConverter;
+import java.util.Optional;
 
 public interface Prop<T> extends PropTypeConverter<T> {
 
@@ -24,13 +25,7 @@ public interface Prop<T> extends PropTypeConverter<T> {
   String key();
 
   /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
-  T value();
-
-  /**
-   * @return a default value of type <code>T</code>, or null of the {@link Prop} does not have a
-   *     default value
-   */
-  T defaultValue();
+  Optional<T> value();
 
   /** @return a short description explaining what this prop is used for; developer-friendly */
   String description();

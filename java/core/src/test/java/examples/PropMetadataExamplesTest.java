@@ -57,7 +57,8 @@ public class PropMetadataExamplesTest {
     // bind a prop for which we do not define a value, but define a default
     RequiredProp aProp = props.bind(new RequiredProp("undefined.prop", "DEFAULT"));
 
-    assertThat("Expecting the default value to be returned", aProp.value(), equalTo("DEFAULT"));
+    assertThat(
+        "Expecting the default value to be returned", aProp.value().get(), equalTo("DEFAULT"));
   }
 
   @Test
@@ -72,7 +73,7 @@ public class PropMetadataExamplesTest {
     assertThat(
         "Expecting a redacted value",
         aProp.toString(),
-        containsString(aProp.redact(aProp.value())));
+        containsString(aProp.redact(aProp.value().get())));
   }
 
   private static class SecretProp extends AbstractStringProp {

@@ -16,6 +16,7 @@
 
 package examples;
 
+import static java.util.Objects.isNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.spy;
@@ -60,7 +61,7 @@ public class ExtendedTypesExamplesTest {
     // assert that the value is retrieved
     assertThat(
         "Expected to read and correctly cast the property",
-        aProp.value(),
+        aProp.value().get(),
         equalTo(Duration.ofDays(1)));
   }
 
@@ -89,7 +90,9 @@ public class ExtendedTypesExamplesTest {
         equalTo(expectedValue));
 
     assertThat(
-        "Expected to read and correctly cast the property", aProp.value(), equalTo(expectedValue));
+        "Expected to read and correctly cast the property",
+        aProp.value().get(),
+        equalTo(expectedValue));
   }
 
   /** Customer prop class that encodes/decodes values in base64 */
@@ -102,7 +105,7 @@ public class ExtendedTypesExamplesTest {
     }
 
     public Base64Prop(String key) {
-      super(key, null, null, false, false);
+      super(key, new byte[] {}, null, false, false);
     }
 
     @Override
@@ -124,7 +127,9 @@ public class ExtendedTypesExamplesTest {
     byte[] expectedValue = {123};
 
     assertThat(
-        "Expected to read and correctly cast the property", aProp.value(), equalTo(expectedValue));
+        "Expected to read and correctly cast the property",
+        aProp.value().get(),
+        equalTo(expectedValue));
   }
 
   /** Customer prop class that encodes/decodes values in base64 */
@@ -138,6 +143,11 @@ public class ExtendedTypesExamplesTest {
     @Override
     protected void validateBeforeSet(byte[] value) {
       super.validateBeforeSet(value);
+
+      // ensure the input is valid
+      if (isNull(value)) {
+        throw new IllegalStateException("Valid bytes must be provided and cannot be a null object");
+      }
 
       // custom validation logic
       // ensure that the encode() function is an inverse of decode()
@@ -201,14 +211,14 @@ public class ExtendedTypesExamplesTest {
     Assertions.assertTimeout(
         Duration.ofSeconds(5),
         () -> {
-          while (Objects.equals(aProp.value(), "one")) {
+          while (Objects.equals(aProp.value().get(), "one")) {
             Thread.sleep(100);
           }
         });
 
     assertThat(
         "Finally, check that the value was correctly updated",
-        aProp.value(),
+        aProp.value().get(),
         equalTo(updatedValue));
   }
 
@@ -236,7 +246,7 @@ public class ExtendedTypesExamplesTest {
     // assert that the value is retrieved
     assertThat(
         "Expected to read and correctly cast the property",
-        aProp.value(),
+        aProp.value().get(),
         equalTo(Path.of("/tmp")));
   }
 
@@ -263,7 +273,7 @@ public class ExtendedTypesExamplesTest {
     // assert that the value is retrieved
     assertThat(
         "Expected to read and correctly cast the property",
-        aProp.value(),
+        aProp.value().get(),
         equalTo(Path.of(System.getProperty("user.home"))));
   }
 
@@ -274,6 +284,8 @@ public class ExtendedTypesExamplesTest {
 
     // assert that the value is retrieved
     assertThat(
-        "Expected to read and correctly cast the property", aProp.value(), equalTo(Path.of("~/")));
+        "Expected to read and correctly cast the property",
+        aProp.value().get(),
+        equalTo(Path.of("~/")));
   }
 }
