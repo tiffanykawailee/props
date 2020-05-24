@@ -21,8 +21,9 @@ While `props` is currently implemented in JAVA, additional languages are planned
 
 # Static code analysis
 
-- 'props' uses the [Bazel build system](https://bazel.build) which comes with
+- `props` uses the [Bazel build system](https://bazel.build) which comes with
 [ErrorProne](https://errorprone.info/) enabled by default. 
+- [props-core](/java/core/src/main/java) is checked with [fbinfer](https://fbinfer.com/)
 
 # Quickstart
 

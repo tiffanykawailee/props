@@ -43,7 +43,7 @@ fmtcheck:
 .PHONY: vet
 vet:
 	@echo ""
-	@echo "==> Running FB infer..."
+	@echo "==> Running fbinfer..."
 	$(INFER)/bin/infer run -- javac $(shell find ./java/core/src/main/java/ -name '*.java')
 
 .PHONY: generate-pom-version
@@ -116,7 +116,7 @@ ifeq (,$(wildcard ~/.jabba/jabba.sh))
 endif
 
 	@echo ""
-	@echo "==> Installing FB Infer..."
+	@echo "==> Installing fbinfer..."
 ifeq (osx, $(OS_NAME))
 # MacOS
 ifeq (, $(shell which infer))
