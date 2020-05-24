@@ -1,4 +1,13 @@
 PKGNAME=props
+
+ifeq (Darwin, $(shell uname -s))
+	OS_NAME=osx
+else
+	OS_NAME=linux64
+endif
+
+INFER_VERSION=0.17.0
+INFER=lib/infer-$(OS_NAME)-v$(INFER_VERSION)
 GOOGLE_JAVA_FORMAT_VERSION=1.7
 FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 
@@ -33,7 +42,9 @@ fmtcheck:
 
 .PHONY: vet
 vet:
-	@echo "==> Not implemented yet."
+	@echo ""
+	@echo "==> Running FB infer..."
+	$(INFER)/bin/infer run -- javac $(shell find ./java/core/src/main/java/ -name '*.java')
 
 .PHONY: generate-pom-version
 generate-pom-version:
@@ -80,15 +91,19 @@ ifeq (,$(wildcard $(FORMATTER)))
 endif
 
 ifeq (, $(shell which bazelisk))
+
 ifeq (, $(shell which go))
 	$(error "Bazelisk is not installed and golang is not available")
 endif
+
 	@echo ""
 	@echo "==> Installing bazelisk..."
 	go get github.com/bazelbuild/bazelisk
+
 ifeq (, $(shell which bazelisk))
 	$(error "Please add '$(shell go env GOPATH)/bin' to your current PATH")
 endif
+
 endif
 
 ifeq (,$(wildcard ~/.jabba/jabba.sh))
@@ -98,6 +113,27 @@ ifeq (,$(wildcard ~/.jabba/jabba.sh))
 	@echo ""
 	@echo "Don't forget to: source $$JABBA_HOME/jabba.sh"
 	@echo ""
+endif
+
+	@echo ""
+	@echo "==> Installing FB Infer..."
+ifeq (osx, $(OS_NAME))
+# MacOS
+ifeq (, $(shell which infer))
+# Can't use the GitHub version directly, due to https://github.com/facebook/infer/issues/1081
+	brew install infer
+	@echo "==> Linking the executable..."
+	mkdir -p $(INFER)/bin
+	ln -sf $(shell which infer) $(INFER)/bin/infer
+endif
+
+else
+# Linux
+ifeq (, $(wildcard $(INFER)/bin/infer))
+	curl -sSfL -o $(INFER).tar.xz "https://github.com/facebook/infer/releases/download/v$(INFER_VERSION)/infer-$(OS_NAME)-v$(INFER_VERSION).tar.xz"
+	tar -C lib/ -xJf $(INFER).tar.xz
+endif
+
 endif
 
 .PHONY: jabba

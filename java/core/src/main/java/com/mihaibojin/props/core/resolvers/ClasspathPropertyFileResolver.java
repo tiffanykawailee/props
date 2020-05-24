@@ -61,7 +61,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
 
       return ResolverUtils.mergeMapsInPlace(store, ResolverUtils.loadPropertiesFromStream(stream));
     } catch (IOException e) {
-      log.log(Level.SEVERE, "Could not read configuration from classpath: " + location, e);
+      log.log(Level.SEVERE, "Could not read properties from classpath: " + location, e);
     }
 
     return Set.of();

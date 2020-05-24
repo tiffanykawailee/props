@@ -16,8 +16,6 @@
 
 package com.mihaibojin.props.core.resolvers;
 
-import static java.util.Objects.isNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -36,19 +34,13 @@ public class ResolverUtils {
    * Loads a {@link Properties} object from the passed {@link InputStream} and returns a {@link Map}
    * containing all key->value mappings.
    *
-   * <p>This method will ignore <code>null</code> <code>InputStream</code>s.
-   *
-   * @throws IOException if the <code>InputStream</code> cannot be read.
+   * @throws NullPointerException if a null <code>InputStream</code> was passed
+   * @throws IOException if the <code>InputStream</code> cannot be read
    */
   public static Map<String, String> loadPropertiesFromStream(InputStream stream)
       throws IOException {
-    if (isNull(stream)) {
-      log.info("A null InputStream was passed; skipping it...");
-      return null;
-    }
-
     Properties properties = new Properties();
-    properties.load(stream);
+    properties.load(Objects.requireNonNull(stream));
     return readPropertiesToMap(properties);
   }
 

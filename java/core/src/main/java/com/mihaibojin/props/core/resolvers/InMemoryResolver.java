@@ -17,14 +17,13 @@
 package com.mihaibojin.props.core.resolvers;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Useful for tests, when the implementation requires overriding values. */
 public class InMemoryResolver implements Resolver {
-  private final Map<String, String> store = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, String> store = new ConcurrentHashMap<>();
   private final Set<String> updatedKeys = new HashSet<>();
 
   public void set(String key, String value) {

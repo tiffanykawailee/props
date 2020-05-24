@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Installing dependencies
         run: make setup
+
+      - name: Ensuring all tests and static analysis targets pass
+        run: make fmtcheck vet test
 
       - name: Generating the VERSION file for versioning the POM
         run: make generate-pom-version

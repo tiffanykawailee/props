@@ -37,9 +37,6 @@
 .idea/**/gradle.xml
 .idea/**/libraries
 
-# Bazel
-.ijwb/.idea/libraries/
-
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
@@ -339,3 +336,9 @@ gradle-app.setting
 **/build/
 
 # End of https://www.gitignore.io/api/vim,java,linux,macos,maven,bazel,gradle,python,vagrant,intellij
+
+# Bazel
+.ijwb/.idea/libraries/
+
+# Infer
+infer-out/
