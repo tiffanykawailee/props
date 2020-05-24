@@ -19,6 +19,10 @@ While `props` is currently implemented in JAVA, additional languages are planned
 - Thread-safety
 - Ability to specify the order in which sources are queried for values
 
+# Static code analysis
+
+- 'props' uses the [Bazel build system](https://bazel.build) which comes with
+[ErrorProne](https://errorprone.info/) enabled by default. 
 
 # Quickstart
 

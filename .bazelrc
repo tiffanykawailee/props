@@ -2,5 +2,8 @@
 build --java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
 build --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
 
+# ErrorProne
+# build --javacopt='-XepDisableAllChecks'
+
 # Output test results
 test --test_output all
