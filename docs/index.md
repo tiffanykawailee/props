@@ -41,9 +41,9 @@ Initialize a registry object which resolves values from the `system properties` 
 
 ```java
 Props props = Props.factory()
-    .withResolver(new SystemPropertyResolver())
-    .withResolver(new EnvResolver())
-    .build();
+                   .withResolver(new SystemPropertyResolver())
+                   .withResolver(new EnvResolver())
+                   .build();
 ```
 
 Create and bind a `String` property which retrieves the value of `file.encoding` 
@@ -52,7 +52,7 @@ from the system properties.
 ```java
 Prop<String> aProp = props.prop("file.encoding").build();
 
-aProp.value(); // will return an encoding such as UTF-8
+Optional<String> encoding = aProp.value(); // will return an encoding such as UTF-8
 ```
 
 Read more to see other features.
@@ -66,8 +66,8 @@ registry.
 
 ```java
 Props props = Props.factory()
-    .withResolver(...)
-    .build();
+                   .withResolver(...)
+                   .build();
 ```
 
 Once configured, the `Props` object can:
@@ -101,14 +101,17 @@ The following examples assume you have already configured a `Props` registry.
 For example, you can load an `integer` property's value, without registering a prop with the registry:
 
 ```java
-Optional<Integer> maybeValue = props.prop("prop.key", new IntegerConverter() {}).readOnce();
+Optional<Integer> maybeValue = 
+  props.prop("prop.key", new IntegerConverter() {}).readOnce();
 ```
 
 Or if you need to retrieve its value more than once, you can `bind` it to the registry as follows: 
 
 ```java
-Prop<Integer> aProp = props.prop("prop.key", new IntegerConverter() {}).build();
-aProp.value(); // will return the current value, at calling time
+Prop<Integer> aProp = 
+  props.prop("prop.key", new IntegerConverter() {}).build();
+Optional<Integer> maybeValue = 
+  aProp.value(); // will return the current value, at calling time
 ```
 
 
@@ -124,7 +127,8 @@ Props props =
         .withResolver(new PropertyFileResolver(...)) // prop.key="two"
         .build();
 
-props.prop("prop.key").readOnce(); // will return "two"
+Optional<String> maybeValue = 
+  props.prop("prop.key").readOnce(); // will return "two"
 ```
 
 
@@ -140,15 +144,16 @@ Props props =
         .withResolver(new PropertyFileResolver(...)) // prop.key="two"
         .build();
 
-props.prop("prop.key").resolver("MY-ID").readOnce(); // will return "one"
+Optional<String> maybeValue = 
+  props.prop("prop.key").resolver("MY-ID").readOnce(); // will return "one"
 ```
-
 
 ## No value found
 
 If no value can be found for the specified property, `Prop.value()` will return `null`.
 ```java
-props.prop("unknown.prop").readOnce(); // will return null
+Optional<String> maybeValue = 
+  props.prop("unknown.prop").readOnce(); // will return an empty Optional
 ```
 
 ## Further examples

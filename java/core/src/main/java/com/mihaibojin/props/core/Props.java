@@ -180,6 +180,8 @@ public class Props implements AutoCloseable {
 
     boolean hasChanged = !Objects.equals(currentValue, updatedValue);
     boolean isRequiredButEmpty = prop.isRequired() && updatedValue.isEmpty();
+    // boolean isRequiredButEmpty = updatedValue.isEmpty();
+    // todo has default?
 
     // if the value hasn't changed
     // and we are not dealing with a required prop which has no value
@@ -430,7 +432,8 @@ public class Props implements AutoCloseable {
     /**
      * Reads the {@link Prop}'s value without binding it to the current {@link Props} instance.
      *
-     * <p>This is a convenience method that can be used when you want to retrieve a value only once.
+     * <p>This is a convenience method that can be used when you want to retrieve a value a single
+     * time.
      */
     public Optional<T> readOnce() {
       AbstractProp<T> prop =
@@ -446,7 +449,7 @@ public class Props implements AutoCloseable {
             }
           };
 
-      return resolveProp(prop, resolverId);
+      return resolveProp(prop, resolverId).or(() -> Optional.ofNullable(defaultValue));
     }
   }
 }

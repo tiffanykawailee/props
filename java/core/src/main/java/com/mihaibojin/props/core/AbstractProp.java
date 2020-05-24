@@ -42,6 +42,8 @@ public abstract class AbstractProp<T> implements Prop<T> {
     this.description = description;
     this.isRequired = isRequired;
     this.isSecret = isSecret;
+
+    currentValue = defaultValue;
   }
 
   /**
