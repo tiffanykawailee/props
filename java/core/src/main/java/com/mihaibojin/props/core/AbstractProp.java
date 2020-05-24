@@ -27,47 +27,66 @@ public abstract class AbstractProp<T> implements Prop<T> {
   private final String description;
   private final boolean isRequired;
   private final boolean isSecret;
-
   private volatile T currentValue;
 
-  /** @throws IllegalStateException if the constructed object is in an invalid state */
+  /**
+   * Constructs a new property class.
+   *
+   * @throws IllegalStateException if the constructed object is in an invalid state
+   */
   protected AbstractProp(
       String key, T defaultValue, String description, boolean isRequired, boolean isSecret) {
     this.key = key;
     this.defaultValue = defaultValue;
     if (isNull(key)) {
-      throw new IllegalStateException("The prop's key cannot be null");
+      throw new IllegalStateException("The property's key cannot be null");
     }
 
     this.description = description;
     this.isRequired = isRequired;
     this.isSecret = isSecret;
-
-    currentValue = defaultValue;
   }
 
   /**
    * Validates any updates to a property's value.
    *
    * <p>This method can be overridden for more advanced validation requirements.
+   *
+   * @throws ValidationException when validation fails
    */
-  protected void validateBeforeSet(T value) {
+  protected void validateBeforeSet(T value) {}
+
+  /**
+   * This method validates the property's value before returning it.
+   *
+   * <p>This method can be overridden for more advanced validation requirements. In that case, the
+   * overriding implementation should still call this method via <code>super.validateOnGet()</code>,
+   * to preserve the non-null value required property guarantee.
+   *
+   * @throws ValidationException when validation fails
+   */
+  protected void validateBeforeGet(T value) {
+    // if the Prop is required, a value must be available
     if (isRequired && isNull(value)) {
-      throw new IllegalStateException(
-          format("Prop '%s' is required, but a value was not specified", key));
+      throw new ValidationException(
+          format("Prop '%s' is required, but neither a value or a default were specified", key));
     }
   }
 
   /** Update this property's value */
   void setValue(T updateValue) {
-    // choose the updated value, the default value (if specified), or null, in order
-    T val = Optional.ofNullable(updateValue).orElse(defaultValue);
-
     // ensure the value is validated before it is set
-    validateBeforeSet(val);
+    validateBeforeSet(updateValue);
 
     synchronized (this) {
-      currentValue = val;
+      currentValue = updateValue;
+    }
+  }
+
+  /** Retrieve this property's value */
+  T getValueInternal() {
+    synchronized (this) {
+      return currentValue;
     }
   }
 
@@ -79,7 +98,13 @@ public abstract class AbstractProp<T> implements Prop<T> {
    */
   @Override
   public Optional<T> value() {
-    return Optional.ofNullable(currentValue);
+    Optional<T> result =
+        Optional.ofNullable(currentValue).or(() -> Optional.ofNullable(defaultValue));
+
+    // ensure the Prop is in a valid state before returning it
+    validateBeforeGet(result.orElse(null));
+
+    return result;
   }
 
   @Override

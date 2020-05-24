@@ -17,6 +17,7 @@
 package com.mihaibojin.props.core;
 
 import static java.lang.String.format;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.logging.Level.SEVERE;
 
@@ -109,21 +110,17 @@ public class Props implements AutoCloseable {
    *
    * <p>If a non-null <code>resolverId</code> is specified, it will link the prop to that resolver.
    *
-   * @throws IllegalArgumentException if attempting to bind a {@link Prop} for a key which was
-   *     already bound to another object. This is to encourage efficiency and define a single object
-   *     per key, keeping memory usage low(er). Use the {@link #retrieve(String)} and {@link
-   *     #retrieve(String, Class)} methods to get a pre-existing instance.
-   * @throws IllegalArgumentException if the specified <code>resolverId</code> is not know to the
+   * @throws BindException if attempting to bind a {@link Prop} for a key which was already bound to
+   *     another object. This is to encourage efficiency and define a single object per key, keeping
+   *     memory usage low(er). Use the {@link #retrieve(String)} and {@link #retrieve(String,
+   *     Class)} methods to get a pre-existing instance.
+   * @throws IllegalArgumentException if the specified <code>resolverId</code> is not known to the
    *     registry.
    */
   public <T, R extends Prop<T>> R bind(R prop, String resolverId) {
     Prop<?> oldProp = boundProps.putIfAbsent(prop.key(), prop);
     if (nonNull(oldProp) && oldProp != prop) {
-      throw new IllegalArgumentException(
-          "Prop with key "
-              + prop.key()
-              + " was already registered via "
-              + oldProp.getClass().getSimpleName());
+      throw new BindException(prop.key(), oldProp);
     }
 
     if (nonNull(resolverId)) {
@@ -171,55 +168,54 @@ public class Props implements AutoCloseable {
    */
   protected <T> boolean update(Prop<T> prop) {
     // retrieve the Prop's current value
-    Optional<T> currentValue = prop.value();
+    T currentValue = ((AbstractProp<T>) prop).getValueInternal();
 
     // determine if the prop is linked to a specific resolver
     String resolverId = propIdToResolver.get(prop.key());
     // resolve the Props' updated value
-    Optional<T> updatedValue = resolveProp(prop, resolverId);
+    T updatedValue = resolveProp(prop, resolverId).orElse(null);
 
-    boolean hasChanged = !Objects.equals(currentValue, updatedValue);
-    boolean isRequiredButEmpty = prop.isRequired() && updatedValue.isEmpty();
-    // boolean isRequiredButEmpty = updatedValue.isEmpty();
-    // todo has default?
-
-    // if the value hasn't changed
-    // and we are not dealing with a required prop which has no value
-    if (!hasChanged && !isRequiredButEmpty) {
-      // we can stop here, since there are no updates
-      return false;
+    // if the value has changed
+    if (!Objects.equals(currentValue, updatedValue)) {
+      // update the current value
+      ((AbstractProp<T>) prop).setValue(updatedValue);
+      return true;
     }
 
-    // else,
-    // update the current value, or set to null if not resolved
-    // in the case of required props without a value, this call will trigger a validation error at
-    // when the Prop is bound
-    ((AbstractProp<T>) prop).setValue(updatedValue.orElse(null));
-
-    return true;
+    // otherwise return false, since to updates took place
+    return false;
   }
 
   /** Search all resolvers for a value */
   <T> Optional<T> resolveProp(Prop<T> prop, String resolverId) {
+    return resolveByKey(prop.key(), prop, resolverId);
+  }
+
+  /**
+   * Searches all resolvers for the specified key and converts the result to the designated type.
+   *
+   * <p>If a <code>resolverId</code> is specified, only search the matching resolver.
+   */
+  <T> Optional<T> resolveByKey(String key, PropTypeConverter<T> converter, String resolverId) {
     if (!waitForInitialLoad()) {
       return Optional.empty();
     }
 
     if (nonNull(resolverId)) {
       // if the prop is bound to a single resolver, return it on the spot
-      return resolvers.get(resolverId).get(prop.key()).map(prop::decode);
+      return resolvers.get(resolverId).get(key).map(converter::decode);
     }
 
     for (String id : prioritizedResolvers) {
-      Optional<String> value = resolvers.get(id).get(prop.key());
+      Optional<String> value = resolvers.get(id).get(key);
       if (value.isPresent()) {
-        log.log(Level.FINER, format("%s resolved by %s", prop.key(), id));
+        log.log(Level.FINER, format("%s resolved by %s", key, id));
 
         // return an optional which decodes the value on get
         // the reason for lazy decoding is to reduce confusion in a potential stacktrace
         // since the problem would be related to decoding the retrieved string and not with
         // resolving the value
-        return value.map(prop::decode);
+        return value.map(converter::decode);
       }
     }
 
@@ -227,6 +223,9 @@ public class Props implements AutoCloseable {
   }
 
   /**
+   * Validates the specified <code>resolverId</code>. Throws an exception if a resolver was not
+   * found.
+   *
    * @throws IllegalArgumentException if the specified id is not known to the current {@link Props}
    *     registry
    */
@@ -260,7 +259,11 @@ public class Props implements AutoCloseable {
     return layers;
   }
 
-  /** @return true if the wait completed successfully */
+  /**
+   * Waits for the initial operation to load all resolvers to complete.
+   *
+   * @return true if the wait completed successfully
+   */
   private <T> boolean waitForInitialLoad() {
     try {
       // TODO: replace this with a lazy load
@@ -382,6 +385,14 @@ public class Props implements AutoCloseable {
     private Builder(String key, PropTypeConverter<T> converter) {
       this.key = key;
       this.converter = converter;
+
+      // validate the two required properties
+      if (isNull(key)) {
+        throw new IllegalStateException("The property's key cannot be null");
+      }
+      if (isNull(converter)) {
+        throw new IllegalStateException("A converter must be specified");
+      }
     }
 
     public Builder<T> resolver(String resolverId) {
@@ -430,26 +441,23 @@ public class Props implements AutoCloseable {
     }
 
     /**
-     * Reads the {@link Prop}'s value without binding it to the current {@link Props} instance.
+     * Reads the designated key without binding a <code>Prop</code> to the registry.
      *
-     * <p>This is a convenience method that can be used when you want to retrieve a value a single
-     * time.
+     * <p>This is a convenience method for retrieving values only once.
+     *
+     * @throws ValidationException if a required prop does not have a value or a default
      */
     public Optional<T> readOnce() {
-      AbstractProp<T> prop =
-          new AbstractProp<>(key, defaultValue, description, isRequired, isSecret) {
-            @Override
-            public T decode(String value) {
-              return converter.decode(value);
-            }
+      Optional<T> result =
+          resolveByKey(key, converter, resolverId).or(() -> Optional.ofNullable(defaultValue));
 
-            @Override
-            public String encode(T value) {
-              return converter.encode(value);
-            }
-          };
+      // if the Prop is required, a value must be available
+      if (isRequired && result.isEmpty()) {
+        throw new ValidationException(
+            format("Prop '%s' is required, but neither a value or a default were specified", key));
+      }
 
-      return resolveProp(prop, resolverId).or(() -> Optional.ofNullable(defaultValue));
+      return result;
     }
   }
 }

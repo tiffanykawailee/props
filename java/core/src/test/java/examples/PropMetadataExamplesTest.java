@@ -23,6 +23,7 @@ import static org.hamcrest.core.StringContains.containsString;
 
 import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.Props;
+import com.mihaibojin.props.core.ValidationException;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
 import com.mihaibojin.props.core.types.AbstractStringProp;
 import java.util.Optional;
@@ -43,15 +44,27 @@ public class PropMetadataExamplesTest {
   }
 
   @Test
-  void requiredPropMustHaveADefaultIfItDoesNotHaveAValue() {
+  void requiredPropMustHaveAValueOrADefault() {
+    RequiredProp aProp = props.bind(new RequiredProp("undefined.prop", null));
+
     Assertions.assertThrows(
-        IllegalStateException.class, () -> props.bind(new RequiredProp("undefined.prop", null)));
+        ValidationException.class,
+        aProp::value,
+        "Expecting prop to throw, since it is required but is missing a value");
   }
 
   private static class RequiredProp extends AbstractStringProp {
     RequiredProp(String key, String defaultValue) {
       super(key, defaultValue, null, true, false);
     }
+  }
+
+  @Test
+  void requiredUnBoundPropMustHaveAValue() {
+    Assertions.assertThrows(
+        ValidationException.class,
+        () -> props.prop("undefined.prop").isRequired(true).readOnce(),
+        "Expecting unbound props to throw, if they don't have values or defaults");
   }
 
   @Test
