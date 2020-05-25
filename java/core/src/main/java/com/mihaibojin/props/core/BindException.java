@@ -23,7 +23,7 @@ public class BindException extends RuntimeException {
 
   /**
    * Constructs an exception which is thrown when the user attempts to bind a duplicate prop (by
-   * key)
+   * key).
    */
   public BindException(String key, Prop<?> duplicateProp) {
     super(

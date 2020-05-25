@@ -36,7 +36,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
   private final String location;
   private final boolean isReloadable;
 
-  /** Constructs a {@link Resolver} which should only read properties from the classpath once */
+  /** Constructs a {@link Resolver} which should only read properties from the classpath once. */
   public ClasspathPropertyFileResolver(String location) {
     this(location, false);
   }

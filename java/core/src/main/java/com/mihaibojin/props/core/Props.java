@@ -89,7 +89,7 @@ public class Props implements AutoCloseable {
   }
 
   /**
-   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions
+   * Safely reload all the values managed by the specified {@link Resolver} and logs any exceptions.
    */
   private static Set<String> safeReload(Entry<String, Resolver> res) {
     try {
@@ -100,7 +100,7 @@ public class Props implements AutoCloseable {
     return Set.of();
   }
 
-  /** Convenience method for configuring {@link Props} registry objects */
+  /** Convenience method for configuring {@link Props} registry objects. */
   public static Factory factory() {
     return new Factory();
   }
@@ -145,24 +145,25 @@ public class Props implements AutoCloseable {
   }
 
   /**
-   * @return an existing (bound) {@link Prop} object, or <code>null</code> if one does not exist for
-   *     the specified key
+   * Returns an existing (bound) {@link Prop} object, or <code>null</code> if one does not exist for
+   * the specified key.
    */
   public Prop<?> retrieve(String key) {
     return boundProps.get(key);
   }
 
   /**
+   * Returns an existing (bound) {@link Prop} object, cast to the expected type, or <code>null
+   * </code> if a prop was not bound for the specified key.
+   *
    * @throws ClassCastException if the property key is associated with a different type
-   * @return an existing (bound) {@link Prop} object, cast to the expected type, or <code>null
-   *     </code> if a prop was not bound for the specified key
    */
   public <T, R extends Prop<T>> R retrieve(String key, Class<R> clz) {
     return clz.cast(boundProps.get(key));
   }
 
   /**
-   * Update the {@link Prop}'s current value
+   * Updates the {@link Prop}'s current value.
    *
    * @return true if the property was updated, or false if it kept its value
    */
@@ -186,7 +187,7 @@ public class Props implements AutoCloseable {
     return false;
   }
 
-  /** Search all resolvers for a value */
+  /** Search all resolvers for a value. */
   <T> Optional<T> resolveProp(Prop<T> prop, String resolverId) {
     return resolveByKey(prop.key(), prop, resolverId);
   }
@@ -277,7 +278,7 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** Refreshes values from all the registered {@link Resolver}s */
+  /** Refreshes values from all the registered {@link Resolver}s. */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
     Set<? extends Prop<?>> toUpdate =
         resolvers
@@ -297,7 +298,7 @@ public class Props implements AutoCloseable {
 
   /**
    * Call this method when shutting down the app to stop this class's {@link
-   * ScheduledExecutorService}
+   * ScheduledExecutorService}.
    */
   @Override
   public void close() {
@@ -311,17 +312,17 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** Convenience method for building string {@link Prop}s */
+  /** Convenience method for building string {@link Prop}s. */
   public Builder<String> prop(String key) {
     return new Builder<>(key, new StringConverter() {});
   }
 
-  /** Convenience method for building {@link Prop}s */
+  /** Convenience method for building {@link Prop}s. */
   public <T> Builder<T> prop(String key, PropTypeConverter<T> converter) {
     return new Builder<>(key, converter);
   }
 
-  /** Factory class for building {@link Props} registry classes */
+  /** Factory class for building {@link Props} registry classes. */
   public static class Factory {
     private final LinkedHashMap<String, Resolver> resolvers = new LinkedHashMap<>();
     private Duration refreshInterval = Duration.ofSeconds(30);
@@ -329,13 +330,13 @@ public class Props implements AutoCloseable {
 
     private Factory() {}
 
-    /** Adds a resolver and its identifier to be used in the registry object being built */
+    /** Adds a resolver and its identifier to be used in the registry object being built. */
     public Factory withResolver(String id, Resolver resolver) {
       resolvers.put(id, resolver);
       return this;
     }
 
-    /** Adds a resolver and identifies it by its {@link Resolver#defaultId()} */
+    /** Adds a resolver and identifies it by its {@link Resolver#defaultId()}. */
     public Factory withResolver(Resolver resolver) {
       resolvers.put(resolver.defaultId(), resolver);
       return this;
@@ -343,7 +344,7 @@ public class Props implements AutoCloseable {
 
     /**
      * Allows customizing the refresh interval at which auto-update-able {@link
-     * com.mihaibojin.props.core.resolvers.Resolver}s are refreshed
+     * com.mihaibojin.props.core.resolvers.Resolver}s are refreshed.
      */
     public Factory refreshInterval(Duration interval) {
       refreshInterval = interval;
@@ -395,6 +396,7 @@ public class Props implements AutoCloseable {
       }
     }
 
+    /** Specifies the resolver (by id) to use for retrieving this property. */
     public Builder<T> resolver(String resolverId) {
       validateResolver(resolverId);
       this.resolverId = resolverId;

@@ -26,6 +26,7 @@ public class InMemoryResolver implements Resolver {
   private final ConcurrentHashMap<String, String> store = new ConcurrentHashMap<>();
   private final Set<String> updatedKeys = new HashSet<>();
 
+  /** Stores the specified (key, value) pair in memory. */
   public void set(String key, String value) {
     store.put(key, value);
 

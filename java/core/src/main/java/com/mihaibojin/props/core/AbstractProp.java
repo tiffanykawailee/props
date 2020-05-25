@@ -73,7 +73,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
     }
   }
 
-  /** Update this property's value */
+  /** Update this property's value. */
   void setValue(T updateValue) {
     // ensure the value is validated before it is set
     validateBeforeSet(updateValue);
@@ -83,7 +83,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
     }
   }
 
-  /** Retrieve this property's value */
+  /** Retrieve this property's value. */
   T getValueInternal() {
     synchronized (this) {
       return currentValue;
@@ -127,7 +127,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
     return isSecret;
   }
 
-  /** Helper method for redacting secret values */
+  /** Helper method for redacting secret values. */
   protected String redact(T value) {
     return "<redacted>";
   }

@@ -68,7 +68,7 @@ public class ExtendedTypesExamplesTest {
         equalTo(Duration.ofDays(1)));
   }
 
-  /** Custom prop class that reads a numeric value in days */
+  /** Custom prop class that reads a numeric value in days. */
   private static class DaysProp extends AbstractNumericDurationProp {
     public DaysProp() {
       super("a.value.in.days", null, null, false, false);
@@ -98,7 +98,7 @@ public class ExtendedTypesExamplesTest {
         equalTo(expectedValue));
   }
 
-  /** Customer prop class that encodes/decodes values in base64 */
+  /** Customer prop class that encodes/decodes values in base64. */
   private static class Base64Prop extends AbstractProp<byte[]>
       implements PropTypeConverter<byte[]> {
     private static final Charset CHARSET = Charset.defaultCharset();
@@ -135,7 +135,7 @@ public class ExtendedTypesExamplesTest {
         equalTo(expectedValue));
   }
 
-  /** Customer prop class that encodes/decodes values in base64 */
+  /** Customer prop class that encodes/decodes values in base64. */
   private static class Base64PropWithValidation extends Base64Prop {
 
     public Base64PropWithValidation() {
@@ -168,7 +168,7 @@ public class ExtendedTypesExamplesTest {
         IllegalStateException.class, () -> props.bind(new Base64PropWithBadEncoder()));
   }
 
-  /** Customer prop class that encodes/decodes values in base64 */
+  /** Customer prop class that encodes/decodes values in base64. */
   private static class Base64PropWithBadEncoder extends Base64Prop {
 
     public Base64PropWithBadEncoder() {
@@ -225,7 +225,7 @@ public class ExtendedTypesExamplesTest {
         equalTo(updatedValue));
   }
 
-  /** Customer prop class that encodes/decodes values in base64 */
+  /** Customer prop class that encodes/decodes values in base64. */
   private static class SimpleProp extends AbstractStringProp {
 
     protected SimpleProp(String key) {
@@ -253,7 +253,7 @@ public class ExtendedTypesExamplesTest {
         equalTo(Path.of("/tmp")));
   }
 
-  /** Custom prop class that reads a numeric value in days */
+  /** Custom prop class that reads a numeric value in days. */
   private static class PathProp extends AbstractPathProp {
     private final boolean expandHomeDir;
 
@@ -292,14 +292,14 @@ public class ExtendedTypesExamplesTest {
         equalTo(Path.of("~/")));
   }
 
-  /** A 'newer' prop of type Boolean */
+  /** A 'newer' prop of type Boolean. */
   private static class NewProp extends AbstractBooleanProp {
     protected NewProp(String key) {
       super(key, null, null, false, false);
     }
   }
 
-  /** An 'older' prop of type Integer */
+  /** An 'older' prop of type Integer. */
   private static class OldProp extends AbstractIntegerProp {
     protected OldProp(String key) {
       super(key, null, null, false, false);

@@ -100,14 +100,14 @@ class ConverterUtils {
     }
   }
 
-  /** Splits a {@link String} by the given <code>separator</code> */
+  /** Splits a {@link String} by the given <code>separator</code>. */
   static List<String> splitString(String input, String separator) {
     return List.of(input.split(Pattern.quote(separator)));
   }
 
   /**
    * Splits a {@link String} by the given <code>separator</code>, casts every item using the
-   * specified <code>mapper</code> func and returns a {@link List} of numbers
+   * specified <code>mapper</code> func and returns a {@link List} of numbers.
    */
   static <T extends Number> List<T> splitStringAsNumbers(
       String input, String separator, Function<Number, T> mapper) {

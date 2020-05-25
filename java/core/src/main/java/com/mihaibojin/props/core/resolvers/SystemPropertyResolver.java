@@ -18,7 +18,7 @@ package com.mihaibojin.props.core.resolvers;
 
 import java.util.Optional;
 
-/** Loads system properties */
+/** Loads system properties. */
 public class SystemPropertyResolver extends ReadOnlyResolver {
   @Override
   public Optional<String> get(String key) {

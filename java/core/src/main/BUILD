@@ -1,5 +1,4 @@
 load("@rules_java//java:defs.bzl", "java_library")
-
 java_library(
     name = "props-core",
     srcs = glob(["java/**/*.java"]),

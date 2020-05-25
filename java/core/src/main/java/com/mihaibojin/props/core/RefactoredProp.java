@@ -75,7 +75,7 @@ public class RefactoredProp<T1, T2> {
   }
 
   /**
-   * This method attempts the following actions:
+   * This method attempts the following actions.
    * <li>If the first property has a value it is returned
    * <li>next, it tries to load the second property's value
    * <li>finally, the class returns an empty {@link Optional} of type <code>T1</code> or it throws

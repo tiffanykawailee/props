@@ -18,7 +18,7 @@ package com.mihaibojin.props.core.converters;
 
 import java.nio.file.Path;
 
-/** Converter that returns the inputted {@link String} */
+/** Converter that returns the inputted {@link String}. */
 public interface PathConverter extends PropTypeConverter<Path> {
 
   /**
@@ -47,7 +47,7 @@ public interface PathConverter extends PropTypeConverter<Path> {
 
   /**
    * By default, expand <code>~</code> to the user's home directory, as returned by <code>
-   * System.getProperty("user.home")</code>
+   * System.getProperty("user.home")</code>.
    */
   default boolean expandUserHomeDir() {
     return true;

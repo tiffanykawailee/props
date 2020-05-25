@@ -36,7 +36,7 @@ public class PropertyFileResolver implements Resolver {
   private final Path location;
   private final boolean isReloadable;
 
-  /** Constructs a {@link Resolver} which should only read the properties file once */
+  /** Constructs a {@link Resolver} which should only read the properties file once. */
   public PropertyFileResolver(Path location) {
     this(location, false);
   }

@@ -36,8 +36,8 @@ public interface Prop<T> extends PropTypeConverter<T> {
   /**
    * Returns the property's current value.
    *
-   * @throws ValidationException if the value could not be validated
    * @return the {@link Prop}'s current value, or an empty Optional if one could not be determined.
+   * @throws ValidationException if the value could not be validated
    */
   Optional<T> value();
 

@@ -22,7 +22,9 @@ import java.util.Set;
 
 public interface Resolver {
 
-  /** @return the value of the specified key, or <code>null</code> if the property is not defined */
+  /**
+   * Returns the value of the specified key, or <code>null</code> if the property is not defined.
+   */
   Optional<String> get(String key);
 
   /**
@@ -33,16 +35,16 @@ public interface Resolver {
   Set<String> reload();
 
   /**
-   * @return <code>true</code> if the implementation can reload its properties, or <code>false
-   *     </code> if it cannot
+   * Returns <code>true</code> if the implementation can reload its properties, or <code>false
+   *     </code> if it cannot.
    */
   default boolean isReloadable() {
     return true;
   }
 
   /**
-   * @return a string identifying the resolver, if a custom id was not specified by calling {@link
-   *     Props.Factory#withResolver(String, Resolver)}
+   * Returns a string identifying the resolver, if a custom id was not specified by calling {@link
+   * Props.Factory#withResolver(String, Resolver)}.
    */
   String defaultId();
 }

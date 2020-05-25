@@ -20,7 +20,7 @@ import static com.mihaibojin.props.core.converters.ConverterUtils.safeParseDurat
 
 import java.time.Duration;
 
-/** Converter that casts the inputted {@link String} to an {@link Duration} value */
+/** Converter that casts the inputted {@link String} to an {@link Duration} value. */
 public interface DurationConverter extends PropTypeConverter<Duration> {
   @Override
   default Duration decode(String value) {
