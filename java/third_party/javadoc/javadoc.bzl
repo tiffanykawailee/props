@@ -17,6 +17,7 @@ def _javadoc(ctx):
         inputs = ctx.files.srcs,
         outputs = [output_jar],
         command = "\n".join(cmd),
+        use_default_shell_env = True,
     )
 
     return [
@@ -31,3 +32,4 @@ javadoc = rule(
         "artifact_id": attr.string(),
     },
 )
+

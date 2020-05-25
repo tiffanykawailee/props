@@ -7,3 +7,6 @@ build --host_java_toolchain=@bazel_tools//tools/jdk:toolchain_java11
 
 # Output test results
 test --test_output all
+
+# Bazel debug
+# test --sandbox_debug
