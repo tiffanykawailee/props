@@ -23,9 +23,12 @@ import static org.mockito.Mockito.spy;
 
 import com.mihaibojin.props.core.AbstractProp;
 import com.mihaibojin.props.core.Props;
+import com.mihaibojin.props.core.RefactoredProp;
 import com.mihaibojin.props.core.converters.PropTypeConverter;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
 import com.mihaibojin.props.core.resolvers.InMemoryResolver;
+import com.mihaibojin.props.core.types.AbstractBooleanProp;
+import com.mihaibojin.props.core.types.AbstractIntegerProp;
 import com.mihaibojin.props.core.types.AbstractNumericDurationProp;
 import com.mihaibojin.props.core.types.AbstractPathProp;
 import com.mihaibojin.props.core.types.AbstractStringProp;
@@ -287,5 +290,64 @@ public class ExtendedTypesExamplesTest {
         "Expected to read and correctly cast the property",
         aProp.value().get(),
         equalTo(Path.of("~/")));
+  }
+
+  /** A 'newer' prop of type Boolean */
+  private static class NewProp extends AbstractBooleanProp {
+    protected NewProp(String key) {
+      super(key, null, null, false, false);
+    }
+  }
+
+  /** An 'older' prop of type Integer */
+  private static class OldProp extends AbstractIntegerProp {
+    protected OldProp(String key) {
+      super(key, null, null, false, false);
+    }
+  }
+
+  @Test
+  void refactoredPropPrefersNewerValue() {
+    // construct the prop object
+    // specifying a converter which can transform integers to booleans
+    RefactoredProp<Boolean, Integer> aProp =
+        new RefactoredProp<>(
+            props, new NewProp("a.new.prop"), new OldProp("an.old.prop"), value -> value != 0);
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property", aProp.value().get(), equalTo(false));
+  }
+
+  @Test
+  void refactoredPropCanConvertOlderValue() {
+    // construct the prop object
+    // specifying a converter which can transform integers to booleans
+    RefactoredProp<Boolean, Integer> aProp =
+        new RefactoredProp<>(
+            props,
+            new NewProp("a.new.prop.unknown"),
+            new OldProp("an.old.prop"),
+            value -> value != 0);
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected to read and correctly cast the property", aProp.value().get(), equalTo(true));
+  }
+
+  @Test
+  void refactoredPropCannotFindValue() {
+    // construct the prop object
+    // specifying a converter which can transform integers to booleans
+    RefactoredProp<Boolean, Integer> aProp =
+        new RefactoredProp<>(
+            props,
+            new NewProp("a.new.prop.unknown"),
+            new OldProp("an.old.prop.unknown"),
+            value -> value != 0);
+
+    // assert that the value is retrieved
+    assertThat(
+        "Expected the property to not be resolved", aProp.value().isPresent(), equalTo(false));
   }
 }

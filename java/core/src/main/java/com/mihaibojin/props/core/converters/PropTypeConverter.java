@@ -18,10 +18,18 @@ package com.mihaibojin.props.core.converters;
 
 @FunctionalInterface
 public interface PropTypeConverter<T> {
-  /** Decodes and decrypts the passed string value into its final type */
+  /**
+   * Decodes and decrypts the passed string value into its final type.
+   *
+   * @return the value parsed as <code>T</code>
+   */
   T decode(String value);
 
-  /** Encodes the value as a {@link String} */
+  /**
+   * Encodes the value as a {@link String}.
+   *
+   * @return the string representation of the passed <code>value</code> argument
+   */
   default String encode(T value) {
     return value.toString();
   }

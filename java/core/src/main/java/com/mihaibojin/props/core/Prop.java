@@ -19,26 +19,47 @@ package com.mihaibojin.props.core;
 import com.mihaibojin.props.core.converters.PropTypeConverter;
 import java.util.Optional;
 
+/**
+ * Interface with common property methods.
+ *
+ * @param <T> the property's type
+ */
 public interface Prop<T> extends PropTypeConverter<T> {
 
-  /** Identifies the {@link Prop} */
+  /**
+   * Identifies the {@link Prop}.
+   *
+   * @return a string id
+   */
   String key();
 
-  /** @return the {@link Prop}'s current value, or <code>null</code> if one was not set */
+  /**
+   * Returns the property's current value.
+   *
+   * @throws ValidationException if the value could not be validated
+   * @return the {@link Prop}'s current value, or an empty Optional if one could not be determined.
+   */
   Optional<T> value();
 
-  /** @return a short description explaining what this prop is used for; developer-friendly */
+  /**
+   * Returns a short description explaining what this prop is used for.
+   *
+   * @return a short, developer-friendly description
+   */
   String description();
 
   /**
-   * @return <code>true</code> if this {@link Prop} requires a value (validation will fail if one is
-   *     not specified)
+   * Returns <code>true</code> if this {@link Prop} requires a value.
+   *
+   * @return true if the property should have a value or a default
    */
   boolean isRequired();
 
   /**
-   * @return <code>true</code> if this {@link Prop} represents a secret and its value should be
-   *     redacted when printed
+   * Returns <code>true</code> if this {@link Prop} represents a secret and its value should be
+   * redacted when printed.
+   *
+   * @return true if the property is a 'secret'
    */
   boolean isSecret();
 }

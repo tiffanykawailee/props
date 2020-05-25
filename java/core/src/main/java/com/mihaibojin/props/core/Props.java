@@ -359,7 +359,7 @@ public class Props implements AutoCloseable {
     }
 
     /**
-     * Creates the {@link Props} object
+     * Creates the {@link Props} object.
      *
      * @throws IllegalStateException if the method is called without registering any {@link
      *     Resolver}s
@@ -372,7 +372,7 @@ public class Props implements AutoCloseable {
     }
   }
 
-  /** Builder class for creating custom {@link Prop}s from the current {@link Props} registry */
+  /** Builder class for creating custom {@link Prop}s from the current {@link Props} registry. */
   public class Builder<T> {
     public final String key;
     public final PropTypeConverter<T> converter;
@@ -422,7 +422,7 @@ public class Props implements AutoCloseable {
     }
 
     /**
-     * Constructs the {@link Prop}, binds it to the current {@link Props} instance, and returns it
+     * Constructs the {@link Prop}, binds it to the current {@link Props} instance, and returns it.
      */
     public Prop<T> build() {
       return bind(
