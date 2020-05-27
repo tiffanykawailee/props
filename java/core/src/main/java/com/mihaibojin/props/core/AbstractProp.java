@@ -141,14 +141,16 @@ public abstract class AbstractProp<T> implements Prop<T> {
 
   @Override
   public String toString() {
-    if (currentValue == null) {
-      return format("Prop{%s=null}", key);
+    // copy the value to avoid an NPE caused by a race condition
+    T currentValue = this.currentValue;
+    if (currentValue != null) {
+      return format(
+          "Prop{%s=(%s)%s}",
+          key,
+          currentValue.getClass().getSimpleName(),
+          isSecret() ? redact(currentValue) : currentValue);
     }
 
-    return format(
-        "Prop{%s=(%s)%s}",
-        key,
-        currentValue.getClass().getSimpleName(),
-        isSecret() ? redact(currentValue) : currentValue);
+    return format("Prop{%s=null}", key);
   }
 }
