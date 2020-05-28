@@ -8,8 +8,6 @@ endif
 
 INFER_VERSION=0.17.0
 INFER=lib/infer-$(OS_NAME)-v$(INFER_VERSION)
-GOOGLE_JAVA_FORMAT_VERSION=1.7
-FORMATTER=lib/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
 
 default: build
 
@@ -32,19 +30,28 @@ test: jabba
 
 .PHONY: fmt
 fmt:
-	@echo "==> Formatting all the code..."
-	$(shell find . -name \"*.java\" | grep -v '.ijwb' | xargs java -jar $(FORMATTER) --set-exit-if-changed)
+	@echo ""
+	@echo "==> Formatting Bazel build files..."
+	buildifier $(shell find . -type f \( -iname BUILD -or -iname BUILD.bazel \))
+# TODO(mihaibojin): re-add google-java-format
 
 .PHONY: fmtcheck
 fmtcheck:
-	@echo "==> Ensuring all the code was properly formatted..."
-	find . -name "*.java" | grep -v '.ijwb' | xargs java -jar $(FORMATTER) --set-exit-if-changed -n
+	@echo ""
+	@echo "==> Ensuring all the code is properly formatted..."
+	bazelisk build //java/core/src/main:google-java-format
+
+#	TODO(mihaibojin): Re-enable once the segfault is fixed
+#	@echo ""
+#	@echo "==> Ensuring all Bazel build files are properly formatted..."
+#	buildifier --lint=warn $(shell find . -type f \( -iname BUILD -or -iname BUILD.bazel \))
 
 .PHONY: vet
 vet:
 	@echo ""
 	@echo "==> Running fbinfer..."
 	$(INFER)/bin/infer run -- javac $(shell find ./java/core/src/main/java/ -name '*.java')
+# TODO: add checkstyle, nullaway
 
 .PHONY: generate-pom-version
 generate-pom-version:
@@ -83,13 +90,6 @@ git-hooks:
 
 .PHONY: setup
 setup: git-hooks
-ifeq (,$(wildcard $(FORMATTER)))
-	@echo ""
-	@echo "==> Installing google-java-format..."
-	@mkdir -p lib
-	curl -sSfL -o $(FORMATTER) https://github.com/google/google-java-format/releases/download/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)/google-java-format-$(GOOGLE_JAVA_FORMAT_VERSION)-all-deps.jar
-endif
-
 ifeq (, $(shell which bazelisk))
 
 ifeq (, $(shell which go))
@@ -104,6 +104,13 @@ ifeq (, $(shell which bazelisk))
 	$(error "Please add '$(shell go env GOPATH)/bin' to your current PATH")
 endif
 
+endif
+
+ifeq (, $(shell which buildifier))
+	@echo ""
+	@echo "==> Installing buildifier..."
+	go get github.com/bazelbuild/buildtools/buildifier
+# TODO(mihaibojin): refactor to Bazel version: https://github.com/bazelbuild/buildtools/blob/master/buildifier/README.md#setup-and-usage-via-bazel
 endif
 
 ifeq (,$(wildcard ~/.jabba/jabba.sh))
@@ -130,6 +137,7 @@ endif
 else
 # Linux
 ifeq (, $(wildcard $(INFER)/bin/infer))
+	mkdir -p lib
 	curl -sSfL -o $(INFER).tar.xz "https://github.com/facebook/infer/releases/download/v$(INFER_VERSION)/infer-$(OS_NAME)-v$(INFER_VERSION).tar.xz"
 	tar -C lib/ -xJf $(INFER).tar.xz
 endif
