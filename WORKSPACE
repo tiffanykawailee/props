@@ -66,6 +66,18 @@ maven_install(
             testonly = True,
         ),
         maven.artifact(
+            group = "org.hamcrest",
+            artifact = "hamcrest-core",
+            version = "2.2",
+            testonly = True,
+        ),
+        maven.artifact(
+            group = "org.hamcrest",
+            artifact = "hamcrest",
+            version = "2.2",
+            testonly = True,
+        ),
+        maven.artifact(
             group = "org.mockito",
             artifact = "mockito-core",
             version = "3.3.3",
@@ -107,6 +119,7 @@ maven_install(
         ),
     ],
     fetch_sources = True,
+    strict_visibility = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],

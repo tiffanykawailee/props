@@ -17,14 +17,6 @@ java_library(
     ],
 )
 
-#load("//java/third_party/javadoc:javadoc.bzl", "javadoc")
-#javadoc(
-#    name = "props-core-javadoc",
-#    srcs = glob(["java/**/*.java"]),
-#    artifact_id = "props-core",
-#    group_id = "com.mihaibojin.props",
-#)
-
 java_plugin(
     name = "nullaway",
     deps = [
@@ -55,7 +47,6 @@ genrule(
 )
 
 load("//java/third_party/google-java-format:google-java-format.bzl", "java_format")
-
 java_format(
     name = "google-java-format",
     srcs = glob(["java/**/*.java"]),
