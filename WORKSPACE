@@ -15,7 +15,7 @@ http_archive(
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 # END https://github.com/bazelbuild/rules_jvm_external
 
-# START bazel_skylib
+# START https://github.com/bazelbuild/bazel-skylib
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
@@ -30,7 +30,7 @@ http_archive(
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
-# END bazel_skylib
+# END https://github.com/bazelbuild/bazel-skylib
 
 # BEGIN bazel distribution
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
@@ -42,108 +42,35 @@ git_repository(
 )
 # END bazel distribution
 
+local_repository(
+    name = "com_github_mihaibojin_bazel_java_rules",
+    path = "/Users/mihaibojin/git/bazel_java_ruless",
+)
+git_repository(
+    name = "com_github_mihaibojin_bazel_java_rules",
+    remote = "https://github.com/MihaiBojin/bazel_java_rules",
+    commit = "ff9a52cf3d3cb643166c80168131d3078e449636",
+)
+load("@com_github_mihaibojin_bazel_java_rules//google-java-format:workspace.bzl", "google_java_format_jar")
+google_java_format_jar()
+
+load("@com_github_mihaibojin_bazel_java_rules//checkstyle:workspace.bzl", "checkstyle_jar")
+checkstyle_jar()
+
+load("@com_github_mihaibojin_bazel_java_rules//errorprone:workspace.bzl", "errorprone_workspace")
+load("@com_github_mihaibojin_bazel_java_rules//nullaway:workspace.bzl", "nullaway_workspace")
+load("@com_github_mihaibojin_bazel_java_rules//junit5:workspace.bzl", "junit5_workspace")
+
 # BEGIN java dependencies
 load("@rules_jvm_external//:specs.bzl", "maven")
-
 maven_install(
-    artifacts = [
-        maven.artifact(
-            group = "com.google.code.findbugs",
-            artifact = "jsr305",
-            version = "3.0.2",
-            neverlink = True,
-        ),
-        maven.artifact(
-            group = "com.google.errorprone",
-            artifact = "error_prone_annotations",
-            version = "2.3.4",
-            neverlink = True,
-        ),
-        maven.artifact(
-            group = "org.hamcrest",
-            artifact = "hamcrest-library",
-            version = "2.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.hamcrest",
-            artifact = "hamcrest-core",
-            version = "2.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.hamcrest",
-            artifact = "hamcrest",
-            version = "2.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.mockito",
-            artifact = "mockito-core",
-            version = "3.3.3",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.junit.jupiter",
-            artifact = "junit-jupiter-api",
-            version = "5.6.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.junit.jupiter",
-            artifact = "junit-jupiter-params",
-            version = "5.6.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.junit.jupiter",
-            artifact = "junit-jupiter-engine",
-            version = "5.6.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "org.junit.platform",
-            artifact = "junit-platform-console",
-            version = "1.6.2",
-            testonly = True,
-        ),
-        maven.artifact(
-            group = "com.uber.nullaway",
-            artifact = "nullaway",
-            version = "0.7.10",
-        ),
-        maven.artifact(
-            group = "com.google.guava",
-            artifact = "guava",
-            version = "22.0",
-        ),
-    ],
+    artifacts =
+        errorprone_workspace() +
+        nullaway_workspace() +
+        junit5_workspace(),
     fetch_sources = True,
     strict_visibility = True,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
 )
-# END java dependencies
-
-# BEGIN checkstyle
-http_file(
-    name = "checkstyle",
-    sha256 = "5a46440e980a378d73e76c50ca554cd0c38480ac33040adf16d131d7e16d50a1",
-    urls = [
-        "https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.32/checkstyle-8.32-all.jar",
-    ],
-)
-# END checkstyle
-
-#local_repository(
-#    name = "com_github_mihaibojin_bazel_java_rules",
-#    path = "/Users/mihaibojin/git/bazel_java_rules",
-#)
-git_repository(
-    name = "com_github_mihaibojin_bazel_java_rules",
-    remote = "https://github.com/MihaiBojin/bazel_java_rules",
-    commit = "8b133bf904776e3d40fb6a49000ddd7e134880c8",
-)
-load("@com_github_mihaibojin_bazel_java_rules//google-java-format:workspace.bzl", "google_java_format_workspace")
-google_java_format_workspace()
