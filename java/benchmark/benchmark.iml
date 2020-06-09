@@ -13,7 +13,7 @@
     </content>
     <orderEntry type="jdk" jdkName="AdoptOpenJDK-11.0.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="jmh-core-1.21_f1a187aa" level="project" />
     <orderEntry type="module" module-name=".workspace" />
+    <orderEntry type="library" name="jmh-core-1.23_f1a187ac" level="project" />
   </component>
 </module>

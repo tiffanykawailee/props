@@ -11,7 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.." />
       <excludeFolder url="file://$MODULE_DIR$/../../.idea" />
     </content>
-    <orderEntry type="jdk" jdkName="AdoptOpenJDK-11.0.7" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
