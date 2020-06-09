@@ -11,8 +11,6 @@ http_archive(
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
-
-load("@rules_jvm_external//:defs.bzl", "maven_install")
 # END https://github.com/bazelbuild/rules_jvm_external
 
 # START https://github.com/bazelbuild/bazel-skylib
@@ -45,7 +43,7 @@ git_repository(
 # BEGIN https://github.com/MihaiBojin/bazel_java_rules
 local_repository(
     name = "com_github_mihaibojin_bazel_java_rules",
-    path = "/Users/mihaibojin/git/bazel_java_ruless",
+    path = "/Users/mihaibojin/git/bazel_java_rules",
 )
 git_repository(
     name = "com_github_mihaibojin_bazel_java_rules",
@@ -63,7 +61,7 @@ load("@com_github_mihaibojin_bazel_java_rules//nullaway:workspace.bzl", "nullawa
 load("@com_github_mihaibojin_bazel_java_rules//junit5:workspace.bzl", "junit5_workspace")
 
 # BEGIN java dependencies
-load("@rules_jvm_external//:specs.bzl", "maven")
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 maven_install(
     artifacts =
         errorprone_workspace() +
@@ -78,17 +76,20 @@ maven_install(
 # END https://github.com/MihaiBojin/bazel_java_rules
 
 # BEGIN https://github.com/buchgr/rules_jmh
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+local_repository(
+    name = "rules_jmh",
+    path = "/Users/mihaibojin/git/rules_jmh",
+)
 http_archive(
   name = "rules_jmh",
-  strip_prefix = "buchgr-rules_jmh-6ccf8d7",
-  url = "https://github.com/buchgr/rules_jmh/zipball/6ccf8d7b270083982e5c143935704b9f3f18b256",
+  strip_prefix = "MihaiBojin-rules_jmh-f3b9bd0",
+  url = "https://github.com/MihaiBojin/rules_jmh/zipball/f3b9bd0435d6ab645f0a81cfcd365dc6fb65f820",
   type = "zip",
-  sha256 = "dbb7d7e5ec6e932eddd41b910691231ffd7b428dff1ef9a24e4a9a59c1a1762d",
+  sha256 = "d87a34ed7d17910bacebcaf2786fee8a284d5f640ef59e750975d59433e79f00",
 )
 
 load("@rules_jmh//:deps.bzl", "rules_jmh_deps")
 rules_jmh_deps()
 load("@rules_jmh//:defs.bzl", "rules_jmh_maven_deps")
-rules_jmh_maven_deps()
+rules_jmh_maven_deps(fetch_sources = True)
 # END https://github.com/buchgr/rules_jmh

@@ -40,7 +40,7 @@
   </module>
 
   <module name="RegexpHeader">
-    <property name="headerFile" value="${org.checkstyle.google.header.file}" />
+    <property name="headerFile" value="${org.checkstyle.google.header.file}"/>
     <property name="fileExtensions" value="java"/>
   </module>
 
