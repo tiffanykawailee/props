@@ -22,9 +22,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="hamcrest-2.2_360d6a90" level="project" />
-    <orderEntry type="library" name="jmh-core-1.23_f1a187ac" level="project" />
     <orderEntry type="library" name="junit-jupiter-api-5.6.2_d6a3e5c4" level="project" />
     <orderEntry type="library" name="mockito-core-3.3.3_dd77f65b" level="project" />
+    <orderEntry type="library" name="jmh-core-1.23_f1a187ac" level="project" />
     <orderEntry type="library" name="jmh-gen_3c427141" level="project" />
     <orderEntry type="library" name="jmh-gen_b9d3b60d" level="project" />
     <orderEntry type="library" name="jmh-gen_9ea32f44" level="project" />

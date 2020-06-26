@@ -66,7 +66,11 @@ maven_install(
     artifacts =
         errorprone_workspace() +
         nullaway_workspace() +
-        junit5_workspace(),
+        junit5_workspace() +
+        [
+            "org.openjdk.jmh:jmh-core:1.23",
+            "org.openjdk.jmh:jmh-generator-annprocess:1.23",
+        ],
     fetch_sources = True,
     strict_visibility = True,
     repositories = [

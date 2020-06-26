@@ -38,6 +38,8 @@ import org.openjdk.jmh.infra.Blackhole;
 
 public class GenericBenchmarks {
 
+  // @Setup
+
   /** Initialize the {@link Props} registry */
   @State(Scope.Benchmark)
   public static class PropsState {
