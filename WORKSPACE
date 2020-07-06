@@ -27,10 +27,10 @@ bazel_skylib_workspace()
 # END https://github.com/bazelbuild/bazel-skylib
 
 # BEGIN https://github.com/graknlabs/bazel-distribution
-local_repository(
-    name = "graknlabs_bazel_distribution",
-    path = "/Users/mihaibojin/git/bazel-distribution",
-)
+#local_repository(
+#    name = "graknlabs_bazel_distribution",
+#    path = "/Users/mihaibojin/git/bazel-distribution",
+#)
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "graknlabs_bazel_distribution",
@@ -40,10 +40,10 @@ git_repository(
 # END https://github.com/graknlabs/bazel-distribution
 
 # BEGIN https://github.com/MihaiBojin/bazel_java_rules
-local_repository(
-    name = "com_github_mihaibojin_bazel_java_rules",
-    path = "/Users/mihaibojin/git/bazel_java_rules",
-)
+#local_repository(
+#    name = "com_github_mihaibojin_bazel_java_rules",
+#    path = "/Users/mihaibojin/git/bazel_java_rules",
+#)
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "com_github_mihaibojin_bazel_java_rules",
@@ -81,10 +81,10 @@ maven_install(
 # END https://github.com/MihaiBojin/bazel_java_rules
 
 # BEGIN https://github.com/buchgr/rules_jmh
-local_repository(
-    name = "rules_jmh",
-    path = "/Users/mihaibojin/git/rules_jmh",
-)
+#local_repository(
+#    name = "rules_jmh",
+#    path = "/Users/mihaibojin/git/rules_jmh",
+#)
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "rules_jmh",
