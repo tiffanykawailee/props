@@ -1,10 +1,8 @@
 # BEGIN https://github.com/bazelbuild/rules_jvm_external
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
-
 RULES_JVM_EXTERNAL_TAG = "3.2"
-
 RULES_JVM_EXTERNAL_SHA = "82262ff4223c5fda6fb7ff8bd63db8131b51b413d26eb49e3131037e79e324af"
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 http_archive(
     name = "rules_jvm_external",
     sha256 = RULES_JVM_EXTERNAL_SHA,
@@ -15,7 +13,6 @@ http_archive(
 
 # START https://github.com/bazelbuild/bazel-skylib
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
 http_archive(
     name = "bazel_skylib",
     sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
@@ -26,17 +23,19 @@ http_archive(
 )
 
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
-
 bazel_skylib_workspace()
 # END https://github.com/bazelbuild/bazel-skylib
 
 # BEGIN https://github.com/graknlabs/bazel-distribution
+local_repository(
+    name = "graknlabs_bazel_distribution",
+    path = "/Users/mihaibojin/git/bazel-distribution",
+)
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 git_repository(
     name = "graknlabs_bazel_distribution",
     remote = "https://github.com/MihaiBojin/bazel-distribution",
-    commit = "7e0ebb3db1f92d76f38c73b118ed1dde9ec32918",
+    commit = "d63b2fe5be6f24ae2423713495234144f8e6b15d",
 )
 # END https://github.com/graknlabs/bazel-distribution
 
@@ -45,11 +44,13 @@ local_repository(
     name = "com_github_mihaibojin_bazel_java_rules",
     path = "/Users/mihaibojin/git/bazel_java_rules",
 )
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "com_github_mihaibojin_bazel_java_rules",
     remote = "https://github.com/MihaiBojin/bazel_java_rules",
     commit = "ff9a52cf3d3cb643166c80168131d3078e449636",
 )
+
 load("@com_github_mihaibojin_bazel_java_rules//google-java-format:workspace.bzl", "google_java_format_jar")
 google_java_format_jar()
 
@@ -84,6 +85,7 @@ local_repository(
     name = "rules_jmh",
     path = "/Users/mihaibojin/git/rules_jmh",
 )
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "rules_jmh",
   strip_prefix = "MihaiBojin-rules_jmh-f3b9bd0",
@@ -94,6 +96,7 @@ http_archive(
 
 load("@rules_jmh//:deps.bzl", "rules_jmh_deps")
 rules_jmh_deps()
+
 load("@rules_jmh//:defs.bzl", "rules_jmh_maven_deps")
 rules_jmh_maven_deps(fetch_sources = True)
 # END https://github.com/buchgr/rules_jmh

@@ -13,6 +13,7 @@ assemble_maven(
     scm_url = "https://github.com/MihaiBojin/props.git",
     target = "//java/core/src/main:props-core",
     version_file = "VERSION",
+    visibility = ["//visibility:public"],
 )
 
 deploy_maven(
