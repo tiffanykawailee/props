@@ -16,6 +16,7 @@
 
 package com.mihaibojin.props.core;
 
+import static com.mihaibojin.props.core.resolvers.ResolverUtils.readResolverConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.never;
@@ -35,10 +36,9 @@ public class PropsTest {
     // ARRANGE
     Props props =
         Props.factory()
-            .withResolver("SYSTEM", new SystemPropertyResolver())
-            .withResolver("ENV", new EnvResolver())
-            .withResolver(
-                "CONFIG", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
+            .withResolver(new SystemPropertyResolver())
+            .withResolver(new EnvResolver())
+            .withResolver(new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
             .build();
 
     // ACT
@@ -53,10 +53,8 @@ public class PropsTest {
     // ARRANGE
     Props props =
         Props.factory()
-            .withResolver(
-                "CONFIG1", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
-            .withResolver(
-                "CONFIG2", new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
             .build();
 
     // ACT
@@ -71,15 +69,18 @@ public class PropsTest {
     // ARRANGE
     Props props =
         Props.factory()
-            .withResolver(
-                "CONFIG1", new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
-            .withResolver(
-                "CONFIG2", new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/propfiles/config1.properties"))
+            .withResolver(new ClasspathPropertyFileResolver("/propfiles/config2.properties"))
             .build();
 
     // ACT
     Integer aValue =
-        props.prop("prop.id", new IntegerConverter() {}).resolver("CONFIG1").build().value().get();
+        props
+            .prop("prop.id", new IntegerConverter() {})
+            .resolver("/propfiles/config1.properties")
+            .build()
+            .value()
+            .get();
 
     // ASSERT
     assertThat(aValue, equalTo(1));
@@ -107,5 +108,26 @@ public class PropsTest {
 
     // ASSERT
     verify(factory, never()).registerShutdownHook(props);
+  }
+
+  @Test
+  public void loadResolverConfig() {
+    // ARRANGE
+    Props props =
+        Props.factory()
+            .withResolver(new SystemPropertyResolver())
+            .withResolver(new EnvResolver())
+            .withResolvers(
+                readResolverConfig(
+                    getClass().getResourceAsStream("/resolver-config/resolvers.config")))
+            .build();
+
+    // ACT
+    String aValue1 = props.prop("a.string1").build().value().get();
+    String aValue2 = props.prop("a.string2").build().value().get();
+
+    // ASSERT
+    assertThat(aValue1, equalTo("one"));
+    assertThat(aValue2, equalTo("two"));
   }
 }
