@@ -14,10 +14,10 @@ java_language_level: 11
 derive_targets_from_directories: true
 
 targets:
-  //:all
   //java/core/src/main:all
-  //java/benchmark/src/main:all
   //java/core/src/test:all
+  //java/benchmark/src/main:all
+  //java/central-sync:all
 
 additional_languages:
   # Uncomment any additional languages you want supported
