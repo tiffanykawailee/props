@@ -1,8 +1,6 @@
 title: Props
 description: >-
   Multi-layered properties and secrets management library, for JAVA.
-url: "https://github.com/MihaiBojin/props"
-baseurl: "https://props.mihaibojin.com"
 markdown: kramdown
 kramdown:
   parse_block_html: true
@@ -19,4 +17,10 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-github: [metadata]
+github:
+  repository_url: "https://github.com/MihaiBojin/props"
+  zip_url: "https://github.com/MihaiBojin/props/archive/v0.0.3.zip"
+  tar_url: "https://github.com/MihaiBojin/props/archive/v0.0.3.tar.gz"
+  is_project_page: true
+  owner_url: "https://www.linkedin.com/in/Mihai-Bojin"
+  owner_name: "Mihai Bojin"

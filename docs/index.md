@@ -33,7 +33,7 @@ Add `props` as a dependency in your project.
 <dependency>
   <groupId>com.mihaibojin.props</groupId>
   <artifactId>props-core</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.3</version>
 </dependency>
 ```
 
