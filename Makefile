@@ -107,7 +107,6 @@ javadoc:
 	cd $(TMPDIR) && jar xf javadoc.jar
 	rm -rf $(BASEDIR)/docs/javadoc/
 	mv $(TMPDIR)/props-core $(BASEDIR)/docs/javadoc
-	cp $(BASEDIR)/docs/javadoc_stylesheet.css $(BASEDIR)/docs/javadoc/stylesheet.css
 	rm -rf $(TMPDIR)
 
 .PHONY: git-hooks
