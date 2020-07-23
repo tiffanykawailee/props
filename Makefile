@@ -105,7 +105,8 @@ javadoc:
 	@echo "==> Unpacking javadocs"
 	cp bazel-bin/java/central-sync/com.mihaibojin.props:props-core-javadoc.jar $(TMPDIR)/javadoc.jar
 	cd $(TMPDIR) && jar xf javadoc.jar
-	mv $(TMPDIR)/props-core/* $(BASEDIR)/docs/javadoc/
+	rm -rf $(BASEDIR)/docs/javadoc/
+	mv $(TMPDIR)/props-core $(BASEDIR)/docs/javadoc
 	cp $(BASEDIR)/docs/javadoc_stylesheet.css $(BASEDIR)/docs/javadoc/stylesheet.css
 	rm -rf $(TMPDIR)
 

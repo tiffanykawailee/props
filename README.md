@@ -23,6 +23,12 @@ While `props` is currently implemented in JAVA, additional languages are planned
 While `props` is quite fast, it was not built for low-latency applications.
 You can read more about this topic on the [benchmark results page](java/benchmark/README.md). 
 
+
+# Javadocs
+
+You can find a copy of the latest Javadocs, [here](https://props.mihaibojin.com/javadoc/).
+
+
 # Contributing to the project
 
 Please see the [contributor guide](./CONTRIBUTING.md).
