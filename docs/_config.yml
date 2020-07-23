@@ -1,8 +1,8 @@
 title: Props
 description: >-
   Multi-layered properties and secrets management library, for JAVA.
-url: "https://props.mihaibojin.com"
-baseurl: ""
+url: "https://github.com/MihaiBojin/props"
+baseurl: "https://props.mihaibojin.com"
 markdown: kramdown
 kramdown:
   parse_block_html: true
