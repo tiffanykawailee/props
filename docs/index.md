@@ -33,7 +33,7 @@ Add `props` as a dependency in your project.
 <dependency>
   <groupId>com.mihaibojin.props</groupId>
   <artifactId>props-core</artifactId>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
 </dependency>
 ```
 
@@ -204,7 +204,7 @@ These examples include code samples for the following features:
 
 ## Javadocs
 
-You can find a copy of the latest Javadocs, [here](https://javadoc.io/doc/com.mihaibojin.props/props-core).
+You can find a copy of the latest Javadocs, [here](https://javadoc.io/doc/com.mihaibojin.props/props-core/0.0.4).
 
 
 # Contributing to the project

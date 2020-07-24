@@ -19,8 +19,8 @@ exclude:
   - vendor/ruby/
 github:
   repository_url: "https://github.com/MihaiBojin/props"
-  zip_url: "https://github.com/MihaiBojin/props/archive/v0.0.3.zip"
-  tar_url: "https://github.com/MihaiBojin/props/archive/v0.0.3.tar.gz"
+  zip_url: "https://github.com/MihaiBojin/props/archive/v0.0.4.zip"
+  tar_url: "https://github.com/MihaiBojin/props/archive/v0.0.4.tar.gz"
   is_project_page: true
   owner_url: "https://www.linkedin.com/in/Mihai-Bojin"
   owner_name: "Mihai Bojin"
