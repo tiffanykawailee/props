@@ -204,7 +204,7 @@ These examples include code samples for the following features:
 
 ## Javadocs
 
-You can find a copy of the latest Javadocs, [here](javadoc/).
+You can find a copy of the latest Javadocs, [here](assets/javadoc/).
 
 
 # Contributing to the project

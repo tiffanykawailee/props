@@ -105,8 +105,8 @@ javadoc:
 	@echo "==> Unpacking javadocs"
 	cp bazel-bin/java/central-sync/com.mihaibojin.props:props-core-javadoc.jar $(TMPDIR)/javadoc.jar
 	cd $(TMPDIR) && jar xf javadoc.jar
-	rm -rf $(BASEDIR)/docs/javadoc/
-	mv $(TMPDIR)/props-core $(BASEDIR)/docs/javadoc
+	rm -rf $(BASEDIR)/docs/assets/javadoc/
+	mv $(TMPDIR)/props-core $(BASEDIR)/docs/assets/javadoc
 	rm -rf $(TMPDIR)
 
 .PHONY: git-hooks
