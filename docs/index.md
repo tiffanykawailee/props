@@ -204,7 +204,7 @@ These examples include code samples for the following features:
 
 ## Javadocs
 
-You can find a copy of the latest Javadocs, [here](assets/javadoc/).
+You can find a copy of the latest Javadocs, [here](https://javadoc.io/doc/com.mihaibojin.props/props-core).
 
 
 # Contributing to the project

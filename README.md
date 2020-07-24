@@ -27,7 +27,7 @@ You can read more about this topic on the [benchmark results page](java/benchmar
 
 # Javadocs
 
-You can find a copy of the latest Javadocs, [here](https://props.mihaibojin.com/assets/javadoc/).
+You can find a copy of the latest Javadocs, [here](https://javadoc.io/doc/com.mihaibojin.props/props-core).
 
 
 # Contributing to the project

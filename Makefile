@@ -19,7 +19,7 @@ VERSION_TAG := $(shell git describe --exact-match --tags "$(GITHASH)" 2>/dev/nul
 clean: jabba
 	@echo "==> Cleaning project artifacts and metadata"
 	bazelisk clean
-	rm -rf com/ infer-out/ module-info.class
+	rm -rf com/ infer-out/ module-info.class docs/javadoc
 
 .PHONY: build
 build: jabba
@@ -105,9 +105,9 @@ javadoc:
 	@echo "==> Unpacking javadocs"
 	cp bazel-bin/java/central-sync/com.mihaibojin.props:props-core-javadoc.jar $(TMPDIR)/javadoc.jar
 	cd $(TMPDIR) && jar xf javadoc.jar
-	rm -rf $(BASEDIR)/docs/assets/javadoc/
-	mv $(TMPDIR)/props-core $(BASEDIR)/docs/assets/javadoc
-	rm -rf $(TMPDIR)
+	rm -f $(TMPDIR)/javadoc.jar
+	rm -rf $(BASEDIR)/docs/javadoc
+	mv $(TMPDIR) $(BASEDIR)/docs/javadoc
 
 .PHONY: git-hooks
 git-hooks:

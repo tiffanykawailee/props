@@ -342,3 +342,6 @@ gradle-app.setting
 
 # Infer
 infer-out/
+
+# Javadoc
+docs/javadoc

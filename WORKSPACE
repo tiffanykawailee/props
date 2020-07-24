@@ -35,7 +35,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "graknlabs_bazel_distribution",
     remote = "https://github.com/MihaiBojin/bazel-distribution",
-    commit = "d63b2fe5be6f24ae2423713495234144f8e6b15d",
+    commit = "6305051e29231ebc2d1b2e0ae445a44b3c7034e2",
 )
 # END https://github.com/graknlabs/bazel-distribution
 
