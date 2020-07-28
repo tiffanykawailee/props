@@ -24,6 +24,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.Props;
 import com.mihaibojin.props.core.ValidationException;
+import com.mihaibojin.props.core.converters.Cast;
 import com.mihaibojin.props.core.resolvers.ClasspathPropertyFileResolver;
 import com.mihaibojin.props.core.types.AbstractStringProp;
 import java.util.Optional;
@@ -86,6 +87,14 @@ public class PropMetadataExamplesTest {
 
     assertThat(
         "Expecting the default value to be returned", aProp.value().get(), equalTo("DEFAULT"));
+  }
+
+  @Test
+  void readDefaultValueWithType() {
+    // bind a prop for which we do not define a value, but define a default
+    Prop<Integer> aProp = props.prop("int.prop", Cast.asInteger()).defaultValue(1).build();
+
+    assertThat("Expecting the default value to be returned", aProp.value().get(), equalTo(1));
   }
 
   @Test
