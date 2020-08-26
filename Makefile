@@ -88,6 +88,8 @@ ifeq (0.0.0,$(shell cat release/VERSION))
 endif
 	@echo ""
 	@echo "==> Assembling JAR artifacts for publishing to Maven Central..."
+# TODO(mihaibojin): Generate module-info.java from Bazel
+	cp java-props-core/src/main/java/module-info.template java-props-core/src/main/java/module-info.java
 	bazelisk build //java-props-core/src/main:assemble-maven
 
 .PHONY: deploy-maven

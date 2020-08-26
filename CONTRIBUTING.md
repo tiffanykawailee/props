@@ -27,20 +27,10 @@ Also, you will need a text editor or IDE; we use [IntelliJ](https://www.jetbrain
 
 ## IntelliJ config
 
-The [Bazel IntelliJ plugin](https://ij.bazel.build) unfortunately doesn't
-[yet](https://github.com/bazelbuild/intellij/issues/179) support multiple modules per workspace.
-It also doesn't work very well with [JPMS modules](https://github.com/bazelbuild/intellij/issues/1992).
-And, on sync, it [clears](https://github.com/bazelbuild/intellij/issues/1993) any marked resource and 
-test resource directories.
-
-Until these issues are resolved, contributors to this project will have to do a bit of extra work
-when sync-ing:
-- First, perform a Sync (this step will mess up the project in IntelliJ)
-- do a `git diff` and write down the full list of libraries in each module (e.g., see 
-[this commit](https://github.com/MihaiBojin/props/pull/61/commits/38991480e5531f7678879ae208ba2b8cfcdaccde))
-- revert all changes with `git checkout master --  .ijwb/.blaze/modules/.workspace.iml java-props-benchmark/java-props-benchmark.iml`
-- manually edit both files and re-add the synced libraries
-- go back to IntelliJ, which should now be set-up correctly
+The [Bazel IntelliJ plugin](https://ij.bazel.build) unfortunately doesn't work very well with
+[JPMS modules](https://github.com/bazelbuild/intellij/issues/1992).
+Until this issue is resolved, the JPMS `module-info.java` module descriptors will be generated
+at build time, during the `make assemble-maven` target.
 
 
 ## Building and testing

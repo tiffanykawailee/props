@@ -345,3 +345,6 @@ infer-out/
 
 # Javadoc
 docs/javadoc
+
+# JPMS
+module-info.java
