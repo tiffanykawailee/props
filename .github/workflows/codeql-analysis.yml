@@ -12,7 +12,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -55,7 +55,11 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       make setup build
+       make setup
+       source ~/.jabba/jabba.sh
+       jabba install
+       jabba use
+       make build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
