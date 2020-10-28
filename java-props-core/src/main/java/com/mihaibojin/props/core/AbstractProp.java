@@ -18,9 +18,13 @@ package com.mihaibojin.props.core;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import com.mihaibojin.props.core.annotations.Nullable;
 import java.util.Optional;
+import java.util.concurrent.SubmissionPublisher;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public abstract class AbstractProp<T> implements Prop<T> {
 
@@ -71,7 +75,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
    *
    * @throws ValidationException when validation fails
    */
-  protected void validateBeforeGet(T value) {
+  protected void validateBeforeGet(@Nullable T value) {
     // if the Prop is required, a value must be available
     if (isRequired && isNull(value)) {
       throw new ValidationException(
@@ -82,11 +86,20 @@ public abstract class AbstractProp<T> implements Prop<T> {
   /** Update this property's value. */
   void setValue(T updateValue) {
     // ensure the value is validated before it is set
-    validateBeforeSet(updateValue);
+    try {
+      validateBeforeSet(updateValue);
+    } catch (RuntimeException e) {
+      publisher().closeExceptionally(e);
+      throw e;
+    }
 
     synchronized (this) {
       currentValue = updateValue;
     }
+
+    // TODO(mihaibojin): refactor to support the handling of update storms
+    //  (e.g., with ReactiveX.Window.Last / publish only the very last event in a window)
+    publisher().submit(updateValue);
   }
 
   /** Retrieve this property's value. */
@@ -104,14 +117,49 @@ public abstract class AbstractProp<T> implements Prop<T> {
    * @return an {@link Optional} representing the current value
    */
   @Override
-  public Optional<T> value() {
-    Optional<T> result =
-        Optional.ofNullable(currentValue).or(() -> Optional.ofNullable(defaultValue));
+  public Optional<T> maybeValue() {
+    return Optional.ofNullable(value());
+  }
+
+  /** Returns the raw value of this prop. */
+  @Override
+  @Nullable
+  public T value() {
+    T value;
+    if (nonNull(currentValue)) {
+      value = currentValue;
+    } else {
+      value = defaultValue;
+    }
 
     // ensure the Prop is in a valid state before returning it
-    validateBeforeGet(result.orElse(null));
+    validateBeforeGet(value);
+    return value;
+  }
 
-    return result;
+  private final AtomicReference<SubmissionPublisher<T>> publisher = new AtomicReference<>();
+
+  /** Returns the {@link SubmissionPublisher} instance to use for the current Prop. */
+  @SuppressWarnings("NullAway")
+  private SubmissionPublisher<T> publisher() {
+    SubmissionPublisher<T> pub = publisher.get();
+    if (isNull(pub)) {
+      pub = new SubmissionPublisher<>();
+      if (!publisher.compareAndSet(null, pub)) {
+        // if we've failed to set it, another thread has done so
+        // retrieve the latest and most correct value
+        pub = publisher.get();
+      }
+    }
+
+    // NullAway does not like the code above, as it wrongly assumes publisher.get() can return null
+    return pub;
+  }
+
+  /** Registers value and error consumers, which are called every time the prop is updated. */
+  @Override
+  public void onUpdate(Consumer<T> consumer, Consumer<Throwable> errConsumer) {
+    publisher().subscribe(new OnUpdateSubscriber<>(consumer, errConsumer));
   }
 
   @Override

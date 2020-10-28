@@ -127,7 +127,7 @@ public class Props implements AutoCloseable {
     }
 
     // NullAway does not recognize Objects.nonNull (https://github.com/uber/NullAway/issues/393)
-    if (resolverId != null) {
+    if (!Objects.isNull(resolverId)) {
       // only register the prop with a resolver, if the id is non-null and valid
       validateResolver(resolverId);
       propIdToResolver.put(prop.key(), resolverId);
@@ -190,7 +190,7 @@ public class Props implements AutoCloseable {
       return true;
     }
 
-    // otherwise return false, since to updates took place
+    // otherwise return false, since no updates took place
     return false;
   }
 
@@ -216,18 +216,29 @@ public class Props implements AutoCloseable {
     }
 
     for (String id : prioritizedResolvers) {
-      Optional<String> value =
-          Optional.ofNullable(resolvers.get(id)).flatMap(resolver -> resolver.get(key));
-
-      if (value.isPresent()) {
-        log.log(Level.FINER, format("%s resolved by %s", key, id));
-
-        // return an optional which decodes the value on get
-        // the reason for lazy decoding is to reduce confusion in a potential stacktrace
-        // since the problem would be related to decoding the retrieved string and not with
-        // resolving the value
-        return value.map(converter::decode);
+      // search each resolver, in priority order
+      Resolver resolver = resolvers.get(id);
+      if (resolver == null) {
+        continue;
       }
+
+      // find the appropriate value, if it exists
+      Optional<String> value = resolver.get(key);
+      if (value.isEmpty()) {
+        continue;
+      }
+
+      // the current method is hot (can be called many times) and the following optimization
+      // avoids unnecessary object allocations due to calling String.format(...)
+      if (log.getLevel() == Level.FINER) {
+        log.log(Level.FINER, format("%s resolved by %s", key, id));
+      }
+
+      // return an optional which decodes the value on get
+      // the reason for lazy decoding is to reduce confusion in a potential stacktrace
+      // since the problem would be related to decoding the retrieved string and not with
+      // resolving the value
+      return value.map(converter::decode);
     }
 
     return Optional.empty();
@@ -290,6 +301,9 @@ public class Props implements AutoCloseable {
 
   /** Refreshes values from all the registered {@link Resolver}s. */
   private void refreshResolvers(Map<String, Resolver> resolvers) {
+    // TODO(mihaibojin): this implementation is very naive and results in 9% of extra allocations
+    //  in high traffic use-cases (many updates); replace the whole implementation with
+    //  something more performant
     Set<? extends Prop<?>> toUpdate =
         resolvers.entrySet().parallelStream()
             .filter(r -> r.getValue().isReloadable())
@@ -300,7 +314,7 @@ public class Props implements AutoCloseable {
             .collect(Collectors.toSet());
 
     // TODO(mihaibojin): in the future, this will be replace with a better mechanism that keeps
-    // track of which resolver owns each prop
+    //  track of which resolver owns each prop
     toUpdate.forEach(this::update);
   }
 
