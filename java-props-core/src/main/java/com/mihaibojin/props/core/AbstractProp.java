@@ -21,7 +21,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.mihaibojin.props.core.annotations.Nullable;
-import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -64,7 +63,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
    *
    * @throws ValidationException when validation fails
    */
-  protected void validateBeforeSet(T value) {}
+  protected void validateBeforeSet(@Nullable T value) {}
 
   /**
    * This method validates the property's value before returning it.
@@ -84,7 +83,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
   }
 
   /** Update this property's value. */
-  void setValue(T updateValue) {
+  void setValue(@Nullable T updateValue) {
     // ensure the value is validated before it is set
     try {
       validateBeforeSet(updateValue);
@@ -110,18 +109,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
     }
   }
 
-  /**
-   * This method will return an empty <code>Optional</code> if called on a {@link Prop} which was
-   * not bound to a {@link Props} registry.
-   *
-   * @return an {@link Optional} representing the current value
-   */
-  @Override
-  public Optional<T> maybeValue() {
-    return Optional.ofNullable(value());
-  }
-
-  /** Returns the raw value of this prop. */
+  /** Retrieve this Prop's effective value or <code>null</code>. */
   @Override
   @Nullable
   public T value() {

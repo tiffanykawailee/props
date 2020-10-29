@@ -20,7 +20,6 @@ import static java.util.Objects.nonNull;
 import static java.util.logging.Level.FINE;
 
 import com.mihaibojin.props.core.annotations.Nullable;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -79,23 +78,23 @@ public class RefactoredProp<T1, T2> {
   /**
    * This method attempts the following actions.
    * <li>If the first property has a value it is returned
-   * <li>next, it tries to load the second property's value
-   * <li>finally, the class returns an empty {@link Optional} of type <code>T1</code> or it throws
-   *     an exception
+   * <li>next, it tries to load the second property's value and return it
+   * <li>otherwise, the class returns <code>null</code> or it throws an exception
    *
    * @throws ValidationException if a value could not be loaded from either of the two {@link Props}
    *     and validation failed at least once
    */
-  public Optional<T1> value() {
+  @Nullable
+  public T1 value() {
     ValidationException firstException = null;
-    Optional<T1> result;
+    T1 result;
 
     try {
       // attempt to load the first property
-      result = prop1.maybeValue();
+      result = prop1.value();
 
       // if found
-      if (result.isPresent()) {
+      if (nonNull(result)) {
         // return it
         return result;
       }
@@ -107,10 +106,10 @@ public class RefactoredProp<T1, T2> {
     // otherwise, attempt to retrieve the second property
     try {
       // if a value is present
-      Optional<T2> oldValue = prop2.maybeValue();
-      if (oldValue.isPresent()) {
+      T2 oldValue = prop2.value();
+      if (nonNull(oldValue)) {
         // convert the old type to the new type and return it
-        return Optional.of(converter.apply(oldValue.get()));
+        return converter.apply(oldValue);
       }
 
     } catch (ValidationException secondException) {
@@ -119,7 +118,7 @@ public class RefactoredProp<T1, T2> {
 
       // attempt to throw the first exception (if one was present)
       // otherwise throw the current exception
-      throw Optional.ofNullable(firstException).orElse(secondException);
+      throw (nonNull(firstException)) ? firstException : secondException;
     }
 
     // throw any validation exceptions
@@ -128,6 +127,6 @@ public class RefactoredProp<T1, T2> {
     }
 
     // a value could not be resolved
-    return Optional.empty();
+    return null;
   }
 }

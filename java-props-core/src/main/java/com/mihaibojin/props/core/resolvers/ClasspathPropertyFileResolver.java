@@ -19,11 +19,11 @@ package com.mihaibojin.props.core.resolvers;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
+import com.mihaibojin.props.core.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,8 +47,9 @@ public class ClasspathPropertyFileResolver implements Resolver {
   }
 
   @Override
-  public Optional<String> get(String key) {
-    return Optional.ofNullable(store.get(key));
+  @Nullable
+  public String get(String key) {
+    return store.get(key);
   }
 
   @Override
@@ -60,7 +61,7 @@ public class ClasspathPropertyFileResolver implements Resolver {
       }
 
       return ResolverUtils.mergeMapsInPlace(store, ResolverUtils.loadPropertiesFromStream(stream));
-    } catch (IOException e) {
+    } catch (IOException | IllegalArgumentException e) {
       log.log(Level.SEVERE, "Could not read properties from classpath: " + location, e);
     }
 
