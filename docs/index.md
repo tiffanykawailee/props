@@ -23,7 +23,8 @@ While `props` is currently implemented in JAVA, additional languages are planned
 
 - `props` uses the [Bazel build system](https://bazel.build) which comes with
 [ErrorProne](https://errorprone.info/) enabled by default. 
-- [props-core](/java/core/src/main/java) is checked with [fbinfer](https://fbinfer.com/)
+- [props-core](/java/core/src/main/java) is further checked with
+[Checkstyle](https://checkstyle.sourceforge.io/).
 
 # Quickstart
 

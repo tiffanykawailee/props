@@ -10,9 +10,6 @@ else
 	OS_NAME=unsupported
 endif
 
-INFER_VERSION=0.17.0
-INFER=lib/infer-$(OS_NAME)-v$(INFER_VERSION)
-
 .DEFAULT_GOAL := build
 
 # Determine the current commit's git hash and identify any version tags
@@ -23,7 +20,7 @@ VERSION_TAG := $(shell git describe --exact-match --tags "$(GITHASH)" 2>/dev/nul
 clean: jabba
 	@echo "==> Cleaning project artifacts and metadata"
 	bazelisk clean
-	rm -rf com/ infer-out/ module-info.class docs/javadoc
+	rm -rf com/ module-info.class docs/javadoc
 
 .PHONY: build
 build: jabba
@@ -67,10 +64,6 @@ vet:
 	@echo ""
 	@echo "==> Running Checkstyle..."
 	bazelisk build //java-props-core/src/main:checkstyle
-
-	@echo ""
-	@echo "==> Running fbinfer..."
-	$(INFER)/bin/infer run -- javac $(shell find ./java-props-core/src/main/java/ -name '*.java')
 
 .PHONY: generate-pom-version
 generate-pom-version:
@@ -157,31 +150,6 @@ ifeq (,$(wildcard ~/.jabba/jabba.sh))
 	@echo ""
 	@echo "Don't forget to: source ~/.jabba/jabba.sh"
 	@echo ""
-endif
-
-	@echo ""
-	@echo "==> Installing fbinfer..."
-ifeq (osx, $(OS_NAME))
-# MacOS
-ifeq (, $(shell which infer))
-# Can't use the GitHub version directly, due to https://github.com/facebook/infer/issues/1081
-	brew install infer
-	@echo "==> Linking the executable..."
-	mkdir -p $(INFER)/bin
-	ln -sf $(shell which infer) $(INFER)/bin/infer
-endif
-
-else ifeq (linux64, $(OS_NAME))
-# Linux
-ifeq (, $(wildcard $(INFER)/bin/infer))
-	mkdir -p lib
-	curl -sSfL -o $(INFER).tar.xz "https://github.com/facebook/infer/releases/download/v$(INFER_VERSION)/infer-$(OS_NAME)-v$(INFER_VERSION).tar.xz"
-	tar -C lib/ -xJf $(INFER).tar.xz
-endif
-
-else
-# Unsupported
-	$(error Cannot install infer on $(KERNEL))
 endif
 
 .PHONY: jabba

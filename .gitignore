@@ -340,9 +340,6 @@ gradle-app.setting
 # Bazel
 .ijwb/.idea/libraries/
 
-# Infer
-infer-out/
-
 # Javadoc
 docs/javadoc
 
