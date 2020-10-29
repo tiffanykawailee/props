@@ -225,6 +225,7 @@ public class Props implements AutoCloseable {
       return converter.decode(val);
     }
 
+    // TODO(mihaibojin): Refactor this implementation in favor of Resolver<->Prop ownership
     for (String id : prioritizedResolvers) {
       // search each resolver, in priority order
       Resolver resolver = resolvers.get(id);
@@ -241,7 +242,7 @@ public class Props implements AutoCloseable {
       // the current method is hot (can be called many times) and the following optimization
       // avoids unnecessary object allocations due to calling String.format(...)
       if (log.getLevel() == Level.FINER) {
-        log.log(Level.FINER, format("%s resolved by %s", key, id));
+        log.log(Level.FINER, () -> format("%s resolved by %s", key, id));
       }
 
       // return an optional which decodes the value on get
@@ -504,15 +505,15 @@ public class Props implements AutoCloseable {
     /**
      * Reads the designated key without binding a <code>Prop</code> to the registry.
      *
-     * <p>This is a convenience method for retrieving values only once.
+     * <p>This is a convenience method for retrieving values on the spot.
      *
      * @throws ValidationException if a required prop does not have a value or a default
      */
     @Nullable
-    public T readOnce() {
+    public T value() {
       T result = resolveByKey(key, converter, resolverId);
       if (isNull(result)) {
-        // return the default value, if a key was not found
+        // if looking for the key did not find the value, choose the default value
         result = defaultValue;
       }
 
@@ -523,6 +524,35 @@ public class Props implements AutoCloseable {
       }
 
       return result;
+    }
+
+    /**
+     * Shorthand method that reads the value of the specified key, using the provided {@link
+     * Converter}.
+     *
+     * <p>This method does not allow defining any advanced meta-data (e.g., <code>default values
+     * </code>, <code>required</code>, etc. It also does not perform any validations. For those
+     * use-cases, please see {@link #value()}.
+     *
+     * @return a value if found, or <code>null</code>
+     */
+    @Nullable
+    public T valueOf(String key, Converter<T> converter) {
+      return resolveByKey(key, converter, null);
+    }
+
+    /**
+     * Shorthand method that reads the value of the specified key, and returns a String value.
+     *
+     * <p>This method does not allow defining any advanced meta-data (e.g., <code>default values
+     * </code>, <code>required</code>, etc. It also does not perform any validations. For those
+     * use-cases, please see {@link #value()}.
+     *
+     * @return a value if found, or <code>null</code>
+     */
+    @Nullable
+    public String valueOf(String key) {
+      return resolveByKey(key, Cast.asString(), null);
     }
   }
 }

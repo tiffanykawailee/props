@@ -102,7 +102,7 @@ The following examples assume you have already configured a `Props` registry.
 For example, you can load an `integer` property's value, without registering a prop with the registry:
 
 ```java
-Integer maybeValue = props.prop("prop.key", Cast.asInteger()).readOnce();
+Integer maybeValue = props.valueOf("prop.key", Cast.asInteger());
 ```
 
 Or if you need to retrieve its value more than once, you can `bind` it to the registry as follows: 
@@ -125,7 +125,7 @@ Props props =
         .withResolver(new PropertyFileResolver(...)) // prop.key="two"
         .build();
 
-String maybeValue = props.prop("prop.key").readOnce(); // will return "two"
+String maybeValue = props.valueOf("prop.key"); // will return "two"
 ```
 
 
@@ -172,14 +172,15 @@ Props props =
         .withResolver(new PropertyFileResolver(...)) // prop.key="two"
         .build();
 
-String maybeValue = props.prop("prop.key").resolver("MY-ID").readOnce(); // will return "one"
+// retrieve a value without binding a Prop to the registry
+String maybeValue = props.prop("prop.key").resolver("MY-ID").value(); // will return "one"
 ```
 
 ## No value found
 
 If no value can be found for the specified property, `Prop.value()` will return `null`.
 ```java
-String maybeValue = props.prop("unknown.prop").readOnce(); // will return null
+String maybeValue = props.valueOf("unknown.prop"); // will return null
 ```
 
 ## Further examples

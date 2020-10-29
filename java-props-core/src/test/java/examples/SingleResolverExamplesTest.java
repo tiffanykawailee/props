@@ -51,7 +51,7 @@ public class SingleResolverExamplesTest {
     Props props = Props.factory().withResolver(new PropertyFileResolver(propFile)).build();
 
     // initialize an Integer prop and read its value once
-    String maybeValue = props.prop(propKey).readOnce();
+    String maybeValue = props.prop(propKey).value();
 
     // assert that the value is retrieved
     assertThat(
@@ -69,7 +69,7 @@ public class SingleResolverExamplesTest {
             .build();
 
     // initialize a String prop and read its value once
-    String maybeValue = props.prop("file.encoding").readOnce();
+    String maybeValue = props.prop("file.encoding").value();
 
     // assert that the value is retrieved
     assertThat("Expected to read the property from the classpath", maybeValue, equalTo("UPDATED"));
@@ -81,7 +81,7 @@ public class SingleResolverExamplesTest {
     Props props = Props.factory().withResolver(new EnvResolver()).build();
 
     // initialize a String prop and read its value once
-    String maybeValue = props.prop("PATH").readOnce();
+    String maybeValue = props.prop("PATH").value();
 
     // assert that the value is retrieved
     assertThat("Expected to find PATH in the environment", maybeValue, notNullValue());
@@ -93,7 +93,7 @@ public class SingleResolverExamplesTest {
     Props props = Props.factory().withResolver(new SystemPropertyResolver()).build();
 
     // initialize a String prop and read its value once
-    String maybeValue = props.prop("file.encoding").readOnce();
+    String maybeValue = props.prop("file.encoding").value();
 
     // assert that the value is retrieved
     assertThat(

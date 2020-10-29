@@ -57,7 +57,7 @@ public class ResolverPrecedenceExamplesTest {
             .build();
 
     // initialize an Integer prop and read its value once
-    String value = props.prop("file.encoding").readOnce();
+    String value = props.prop("file.encoding").value();
 
     // assert that the value is dictated by the Resolver with the highest priority
     // (last to be defined)
@@ -86,7 +86,7 @@ public class ResolverPrecedenceExamplesTest {
             .prop("file.encoding")
             // values can be retrieved from a specific resolver, by id
             .resolver(propFile.toString())
-            .readOnce();
+            .value();
 
     // assert that the value is retrieved
     assertThat(
@@ -106,7 +106,7 @@ public class ResolverPrecedenceExamplesTest {
             .build();
 
     // initialize an Integer prop and read its value once
-    String maybeValue = props.prop("a_key_which_does_not_exist").readOnce();
+    String maybeValue = props.prop("a_key_which_does_not_exist").value();
 
     // assert that the value is dictated by the Resolver with the highest priority
     // (last to be defined)

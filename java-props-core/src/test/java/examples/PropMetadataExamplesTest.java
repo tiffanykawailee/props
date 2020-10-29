@@ -58,7 +58,7 @@ public class PropMetadataExamplesTest {
   void requiredUnBoundPropMustHaveAValue() {
     Assertions.assertThrows(
         ValidationException.class,
-        () -> props.prop("undefined.prop").isRequired(true).readOnce(),
+        () -> props.prop("undefined.prop").isRequired(true).value(),
         "Expecting unbound props to throw, if they don't have values or defaults");
   }
 
@@ -73,7 +73,7 @@ public class PropMetadataExamplesTest {
   @Test
   void readDefaultOnlyOnce() {
     // attempt to read a prop's value or return the defined default
-    String maybeValue = props.prop("undefined.prop").defaultValue("DEFAULT").readOnce();
+    String maybeValue = props.prop("undefined.prop").defaultValue("DEFAULT").value();
 
     assertThat("Expecting the default value to be returned", maybeValue, equalTo("DEFAULT"));
   }
