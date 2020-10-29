@@ -21,6 +21,8 @@ import com.mihaibojin.props.core.Props;
 import com.mihaibojin.props.core.resolvers.InMemoryResolver;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -47,6 +49,8 @@ public class PubSubMain {
 
   public static final String DUMMY = "01233456789";
   public static final String DUMMY2 = "12334567890";
+  public static final DateTimeFormatter formatter =
+      DateTimeFormatter.ofPattern("HH:mm:ss.A").withZone(ZoneId.systemDefault());
 
   /** Main entry point. */
   public static void main(String[] args) throws InterruptedException {
@@ -82,72 +86,66 @@ public class PubSubMain {
             "Today's password is swordfish. I understand instantiating Blackholes directly is"
                 + " dangerous.");
 
-    // delimit the environment init phase
-    sleep(SLEEP_MILLIS);
-
     log("Initializing Prop objects...");
     List<Prop<String>> allProps = new ArrayList<>(PROP_COUNT);
     for (int i = 0; i < PROP_COUNT; i++) {
       allProps.add(props.prop(keys[i]).build());
     }
 
-    // delimit the Prop init phase
-    sleep(SLEEP_MILLIS);
+    log("Scheduling Prop updates...");
+    String[] values = {DUMMY, DUMMY2};
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    scheduler.scheduleAtFixedRate(
+        () -> {
+          // randomly set props to one of the two values, effectively triggering constant updating
+          // of the values
+          String upd = values[(int) (System.currentTimeMillis() % 2)];
+          for (int i = 0; i < PROP_COUNT; i++) {
+            resolver.set(keys[i], upd);
+          }
+        },
+        0,
+        REFRESH_MILLIS,
+        TimeUnit.MILLISECONDS);
 
     if (RUN_SYNC) {
+      sleep(SLEEP_MILLIS);
+
       log(
           String.format(
               "Iterating through props and reading their values for %dms...", 3 * SLEEP_MILLIS));
       long now = System.currentTimeMillis();
-      int it = 0;
+      long it = 0;
       while (System.currentTimeMillis() - now < 3 * SLEEP_MILLIS) {
         Prop<String> prop = allProps.get(Math.floorMod(it++, PROP_COUNT));
         blackhole.consume(prop.value());
       }
-
-      // delimit the initial iteration phase
-      sleep(SLEEP_MILLIS);
     }
 
-    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     if (RUN_ASYNC) {
-      log("Scheduling Prop updates...");
-      String[] values = {DUMMY, DUMMY2};
-      scheduler.scheduleAtFixedRate(
-          () -> {
-            // randomly set props to one of the two values, effectively triggering updates
-            String upd = values[(int) (System.currentTimeMillis() % 2)];
-            for (int i = 0; i < PROP_COUNT; i++) {
-              resolver.set(keys[i], upd);
-            }
-          },
-          0,
-          REFRESH_MILLIS,
-          TimeUnit.MILLISECONDS);
-
-      // delimit the initial iteration phase
       sleep(SLEEP_MILLIS);
 
-      // initialize PubSub
-      log(
-          String.format(
-              "Subscribing a consumer to all defined Prop objects and monitoring for %dms...",
-              3 * SLEEP_MILLIS));
+      log("Subscribing consumers to all defined Prop objects");
       for (int i = 0; i < MAX_SUBSCRIBERS; i++) {
         allProps.forEach(p -> p.onUpdate(blackhole::consume, (e) -> {}));
       }
 
+      // delimit the initial iteration phase
+      sleep(SLEEP_MILLIS);
+
       // monitor the system for a while, then exit
+      log(String.format("Monitoring for %dms...", 3 * SLEEP_MILLIS));
       sleep(3 * SLEEP_MILLIS);
     }
 
     props.close();
     scheduler.shutdownNow();
     log("Done.");
+    sleep(SLEEP_MILLIS);
   }
 
   private static void log(String s) {
-    System.out.println(String.format("%d: %s", Instant.now().getNano(), s));
+    System.out.println(String.format("%s: %s", formatter.format(Instant.now()), s));
   }
 
   private static void sleep(long duration) throws InterruptedException {

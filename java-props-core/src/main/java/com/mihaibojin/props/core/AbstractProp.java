@@ -96,7 +96,7 @@ public abstract class AbstractProp<T> implements Prop<T> {
       currentValue = updateValue;
     }
 
-    // TODO(mihaibojin): refactor to support the handling of update storms
+    // TODO(mihaibojin): https://github.com/MihaiBojin/props/issues/71
     //  (e.g., with ReactiveX.Window.Last / publish only the very last event in a window)
     publisher().submit(updateValue);
   }
