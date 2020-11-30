@@ -18,10 +18,10 @@ GITHASH := $(shell git log -n1 --pretty='%H')
 VERSION_TAG := $(shell git describe --exact-match --tags "$(GITHASH)" 2>/dev/null)
 
 .PHONY: clean
-clean: jabba
+clean:
 	@echo "==> Cleaning project artifacts and metadata"
-	bazelisk clean
 	rm -rf com/ module-info.class docs/javadoc
+	bazelisk clean
 
 .PHONY: build
 build: check
@@ -76,7 +76,7 @@ endif
 	echo "$(VERSION_TAG:v%=%)" > release/VERSION
 
 .PHONY: assemble-maven
-assemble-maven: jabba
+assemble-maven: check_sdkman
 ifeq (0.0.0,$(shell cat release/VERSION))
 	$(error "Before running this target, make sure to generate a VERSION file with the _generate-pom-version_ target")
 endif

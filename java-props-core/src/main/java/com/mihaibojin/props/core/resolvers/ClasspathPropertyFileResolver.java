@@ -56,13 +56,14 @@ public class ClasspathPropertyFileResolver implements Resolver {
   public Set<String> reload() {
     try (InputStream stream = getClass().getResourceAsStream(location)) {
       if (isNull(stream)) {
-        log.fine(format("Skipping %s; resource not found in classpath", location));
+        log.fine(() -> format("Skipping %s; resource not found in classpath", location));
         return Set.of();
       }
 
       return ResolverUtils.mergeMapsInPlace(store, ResolverUtils.loadPropertiesFromStream(stream));
     } catch (IOException | IllegalArgumentException e) {
-      log.log(Level.SEVERE, "Could not read properties from classpath: " + location, e);
+      log.log(
+          Level.SEVERE, e, () -> format("Could not read properties from classpath: %s", location));
     }
 
     return Set.of();

@@ -16,9 +16,19 @@ jobs:
       - name: Installing dependencies
         run: make setup
 
-      - name: Running tests and static analysis targets
+      - name: Activating JDK env
         run: |
           . ~/.sdkman/bin/sdkman-init.sh
           sdk env
-          echo
-          make fmtcheck vet test
+
+      - name: Check code formatting
+        run: |
+          make fmtcheck
+
+      - name: Run static analysis
+        run: |
+          make vet
+
+      - name: Run tests
+        run: |
+          make test
