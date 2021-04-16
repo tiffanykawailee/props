@@ -179,11 +179,7 @@ public class Props {
     return (R) boundProps.get(key);
   }
 
-  /**
-   * Updates the {@link Prop}'s current value.
-   *
-   * @return true if the property was updated, or false if it kept its value
-   */
+  /** Updates the {@link Prop}'s current value. */
   protected <T> void update(@Nullable Prop<T> prop) {
     if (prop == null) {
       return;
