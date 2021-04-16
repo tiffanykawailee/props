@@ -1,0 +1,21 @@
+directories:
+  .
+  java-props-core
+  java-props-benchmark
+  contributors
+  docs
+  release
+  third-party
+  -com
+  -props-core
+  -lib
+
+test_sources:
+  java-props-core/src/test
+  java-props-benchmark/src/test
+
+workspace_type: java
+
+java_language_level: 11
+
+derive_targets_from_directories: true

@@ -133,7 +133,7 @@ public class Props {
    * @throws IllegalArgumentException if the specified <code>resolverId</code> is not known to the
    *     registry.
    */
-  public <T, R extends Prop<T>> R bind(R prop, @Nullable String resolverId) {
+  public <T, R extends Prop<T>> void bind(R prop, @Nullable String resolverId) {
     Prop<?> oldProp = boundProps.putIfAbsent(prop.key(), prop);
     if (nonNull(oldProp) && oldProp != prop) {
       throw new BindException(prop.key(), oldProp);
@@ -145,10 +145,6 @@ public class Props {
       validateResolver(resolverId);
       propIdToResolver.put(prop.key(), resolverId);
     }
-
-    update(prop);
-
-    return prop;
   }
 
   /**
@@ -156,8 +152,8 @@ public class Props {
    *
    * @see #bind(Prop, String)
    */
-  public <T, R extends Prop<T>> R bind(R prop) {
-    return bind(prop, null);
+  public <T, R extends Prop<T>> void bind(R prop) {
+    bind(prop, null);
   }
 
   /**
@@ -166,6 +162,7 @@ public class Props {
    */
   @Nullable
   public Prop<?> retrieveProp(String key) {
+    update(boundProps.get(key));
     return boundProps.get(key);
   }
 
@@ -178,6 +175,7 @@ public class Props {
   @Nullable
   @SuppressWarnings("unchecked")
   public <T, R extends Prop<T>> R retrieve(String key) {
+    update(boundProps.get(key));
     return (R) boundProps.get(key);
   }
 
@@ -186,7 +184,10 @@ public class Props {
    *
    * @return true if the property was updated, or false if it kept its value
    */
-  protected <T> boolean update(Prop<T> prop) {
+  protected <T> void update(@Nullable Prop<T> prop) {
+    if (prop == null) {
+      return;
+    }
     // retrieve the Prop's current value
     T currentValue = ((AbstractProp<T>) prop).getValueInternal();
 
@@ -199,11 +200,7 @@ public class Props {
     if (!Objects.equals(currentValue, updatedValue)) {
       // update the current value
       ((AbstractProp<T>) prop).setValue(updatedValue);
-      return true;
     }
-
-    // otherwise return false, since no updates took place
-    return false;
   }
 
   /** Search all resolvers for a value. */
@@ -408,9 +405,7 @@ public class Props {
         throw new IllegalStateException("Cannot initialize Props without any Resolvers");
       }
 
-      Props props = new Props(resolvers, refreshInterval, shutdownGracePeriod);
-
-      return props;
+      return new Props(resolvers, refreshInterval, shutdownGracePeriod);
     }
   }
 
@@ -508,7 +503,7 @@ public class Props {
      * Constructs the {@link Prop}, binds it to the current {@link Props} instance, and returns it.
      */
     public Prop<T> build() {
-      return bind(
+      Prop<T> prop =
           new AbstractProp<>(key, defaultValue, description, isRequired, isSecret) {
             @Override
             @Nullable
@@ -520,8 +515,10 @@ public class Props {
             public String encode(T value) {
               return converter.encode(value);
             }
-          },
-          resolverId);
+          };
+      bind(prop, resolverId);
+      update(prop);
+      return prop;
     }
 
     /**

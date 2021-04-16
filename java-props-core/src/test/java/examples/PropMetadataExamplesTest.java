@@ -46,7 +46,8 @@ public class PropMetadataExamplesTest {
 
   @Test
   void requiredPropMustHaveAValueOrADefault() {
-    RequiredProp aProp = props.bind(new RequiredProp("undefined.prop", null));
+    props.bind(new RequiredProp("undefined.prop", null));
+    RequiredProp aProp = props.retrieve("undefined.prop");
 
     Assertions.assertThrows(
         ValidationException.class,
@@ -65,7 +66,8 @@ public class PropMetadataExamplesTest {
   @Test
   void requiredPropReturnsTheDefault() {
     // bind a prop for which we do not define a value, but define a default
-    RequiredProp aProp = props.bind(new RequiredProp("undefined.prop", "DEFAULT"));
+    props.bind(new RequiredProp("undefined.prop", "DEFAULT"));
+    RequiredProp aProp = props.retrieve("undefined.prop");
 
     assertThat("Expecting the default value to be returned", aProp.value(), equalTo("DEFAULT"));
   }
@@ -97,7 +99,8 @@ public class PropMetadataExamplesTest {
   @Test
   void secretPropDoesNotPrintItsValue() {
     // bind a prop for which we do not define a value, but define a default
-    SecretProp aProp = props.bind(new SecretProp("secret.prop"));
+    props.bind(new SecretProp("secret.prop"));
+    SecretProp aProp = props.retrieve("secret.prop");
 
     assertThat(
         "Expecting the actual value to not be printed",

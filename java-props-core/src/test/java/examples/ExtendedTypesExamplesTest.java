@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.spy;
 
 import com.mihaibojin.props.core.AbstractProp;
+import com.mihaibojin.props.core.Prop;
 import com.mihaibojin.props.core.Props;
 import com.mihaibojin.props.core.RefactoredProp;
 import com.mihaibojin.props.core.annotations.Nullable;
@@ -62,7 +63,9 @@ public class ExtendedTypesExamplesTest {
   @Test
   void customProp() {
     // initialize a prop
-    var aProp = props.bind(new DaysProp());
+    DaysProp daysProp = new DaysProp();
+    props.bind(daysProp);
+    var aProp = props.retrieve(daysProp.key());
 
     // assert that the value is retrieved
     assertThat(
@@ -74,7 +77,9 @@ public class ExtendedTypesExamplesTest {
   @Test
   void customEncoder() {
     // initialize a prop
-    var aProp = props.bind(new Base64Prop());
+    Base64Prop base64Prop = new Base64Prop();
+    props.bind(base64Prop);
+    Prop<byte[]> aProp = props.retrieve(base64Prop.key());
 
     byte[] expectedValue = {123};
 
@@ -90,19 +95,14 @@ public class ExtendedTypesExamplesTest {
   @Test
   void customValidation() {
     // initialize a prop
-    var aProp = props.bind(new Base64PropWithValidation());
+    Base64PropWithValidation base64Prop = new Base64PropWithValidation();
+    props.bind(base64Prop);
+    var aProp = props.retrieve(base64Prop.key());
 
     byte[] expectedValue = {123};
 
     assertThat(
         "Expected to read and correctly cast the property", aProp.value(), equalTo(expectedValue));
-  }
-
-  @Test
-  void customValidationWithFailure() {
-    // the prop will fail to bind, as prop values are validated before being set
-    Assertions.assertThrows(
-        IllegalStateException.class, () -> props.bind(new Base64PropWithBadEncoder()));
   }
 
   @Test
@@ -116,7 +116,8 @@ public class ExtendedTypesExamplesTest {
     Props props =
         Props.factory().withResolver(resolver).refreshInterval(Duration.ofMillis(100)).build();
 
-    var aProp = props.bind(spy(new SimpleProp("a.value")));
+    props.bind(spy(new SimpleProp("a.value")));
+    var aProp = props.retrieve("a.value");
 
     // then update the value
     String updatedValue = "two";
@@ -140,7 +141,8 @@ public class ExtendedTypesExamplesTest {
   @Test
   void pathProp() {
     // initialize a prop
-    var aProp = props.bind(new PathProp("a.path.prop", false));
+    props.bind(new PathProp("a.path.prop", false));
+    var aProp = props.retrieve("a.path.prop");
 
     // assert that the value is retrieved
     assertThat(
@@ -152,7 +154,8 @@ public class ExtendedTypesExamplesTest {
   @Test
   void pathPropHomeDir() {
     // initialize a prop
-    var aProp = props.bind(new PathProp("a.path.homedir", true));
+    props.bind(new PathProp("a.path.homedir", true));
+    var aProp = props.retrieve("a.path.homedir");
 
     // assert that the value is retrieved
     assertThat(
@@ -164,7 +167,8 @@ public class ExtendedTypesExamplesTest {
   @Test
   void pathPropHomeDirNotExpanded() {
     // initialize a prop
-    var aProp = props.bind(new PathProp("a.path.homedir", false));
+    props.bind(new PathProp("a.path.homedir", false));
+    var aProp = props.retrieve("a.path.homedir");
 
     // assert that the value is retrieved
     assertThat(

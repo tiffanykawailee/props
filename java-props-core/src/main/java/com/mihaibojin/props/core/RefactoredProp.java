@@ -72,7 +72,9 @@ public class RefactoredProp<T1, T2> {
     this.prop2 = prop2;
     this.converter = converter;
     registry.bind(prop1, resolverId);
+    registry.update(prop1);
     registry.bind(prop2, resolverId);
+    registry.update(prop2);
   }
 
   /**

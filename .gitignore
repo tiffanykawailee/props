@@ -340,6 +340,9 @@ gradle-app.setting
 # Bazel
 .ijwb/.idea/libraries/
 
+# IntelliJ Bazel
+.ijwb
+
 # Javadoc
 docs/javadoc
 
